@@ -1,7 +1,6 @@
 import { publicProcedure, router } from "../trpc"
 import { prisma } from "../db"
 import {z} from 'zod'
-import { connect } from "http2";
 
 export const orderRouter = router({
   orderList: publicProcedure
@@ -40,7 +39,7 @@ export const orderRouter = router({
      totalAmount: z.number(), status: z.string().default("pending")}))
    .mutation(async (opts) => {
     const { input } = opts;
-    await prisma.order.create({
+    const order = await prisma.order.create({
       data: {
         userId: input.userId,
         products: {
@@ -50,15 +49,17 @@ export const orderRouter = router({
         status: input.status,
       }
     })
+    return order
    }),
    deleteOrderById: publicProcedure
    .input(z.number())
    .mutation(async (opts) => {
     const {input} = opts;
-    await prisma.order.delete({
+    const order = await prisma.order.delete({
       where: {
         id: input
       }
     })
+    return order
    }),
 })

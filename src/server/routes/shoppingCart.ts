@@ -62,7 +62,7 @@ export const shoppingCartRouter = router({
       })
     }
 
-    await prisma.cartItem.delete({
+    const cartItem = await prisma.cartItem.delete({
       where: {
         shoppingCartId_productId: {
           shoppingCartId: cart.id,
@@ -70,6 +70,7 @@ export const shoppingCartRouter = router({
         }
       }
     })
+    return cartItem
   }),
   changeQuantity: publicProcedure
   .input(z.object({
@@ -88,7 +89,7 @@ export const shoppingCartRouter = router({
     if(!cart)
       return
 
-    await prisma.cartItem.update({
+    const cartItem = await prisma.cartItem.update({
       where:{
         shoppingCartId_productId: {
           shoppingCartId: cart.id,
@@ -99,6 +100,7 @@ export const shoppingCartRouter = router({
         quantity: quantityChange
       }
     })
+    return cartItem
   })
 
 })

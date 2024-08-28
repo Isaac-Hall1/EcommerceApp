@@ -32,7 +32,7 @@ export const productRouter = router({
    }))
    .mutation(async (opts) => {
     const { input } = opts;
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: {
         name: input.name,
         description: input.description,
@@ -46,6 +46,7 @@ export const productRouter = router({
         }
       }
     })
+    return product
    }),
    updateProduct: publicProcedure
    .input(z.object({id:z.number(), name: z.string(), description: z.string().optional(),
@@ -55,7 +56,7 @@ export const productRouter = router({
      discountAmount: z.number().default(0),}))
      .mutation(async (opts) => {
       const {input} = opts;
-      await prisma.product.update({
+      const product = await prisma.product.update({
         where: {
           id: input.id
         },
@@ -68,15 +69,17 @@ export const productRouter = router({
           }
         }
       })
+      return product
      }),
    deleteProductById: publicProcedure
    .input(z.number())
    .mutation(async (opts) => {
     const {input} = opts;
-    await prisma.product.delete({
+    const product = await prisma.product.delete({
       where: {
         id: input
       }
     })
+    return product
    }),
 })
