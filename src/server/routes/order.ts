@@ -13,6 +13,17 @@ export const orderRouter = router({
       console.log(error)
     }
   }),
+  ordersByUserId: publicProcedure
+  .input(z.number())
+  .query(async (opts) => {
+    const {input} = opts;
+    const orders = await prisma.order.findMany({
+      where:{
+        userId: input
+      }
+    });
+    return orders;
+  }),
   orderById: publicProcedure
   .input(z.number())
   .query(async (opts) => {
@@ -26,7 +37,7 @@ export const orderRouter = router({
   }),
   createOrder: publicProcedure
   .input(z.object({userId: z.number(), products: z.array(z.number()),
-     totalAmount: z.number(), status: z.string()}))
+     totalAmount: z.number(), status: z.string().default("pending")}))
    .mutation(async (opts) => {
     const { input } = opts;
     await prisma.order.create({

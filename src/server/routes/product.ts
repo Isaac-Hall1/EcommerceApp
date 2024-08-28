@@ -28,6 +28,7 @@ export const productRouter = router({
      price: z.number(), photos: z.array(z.object({
         url: z.string().url()
       }).optional()), orders: z.array(z.number()).optional(),
+      discountAmount: z.number().default(0),
    }))
    .mutation(async (opts) => {
     const { input } = opts;
@@ -36,6 +37,7 @@ export const productRouter = router({
         name: input.name,
         description: input.description,
         price: input.price,
+        discountAmount: input.discountAmount,
         photos: {
           create: input.photos?.filter((photo) => photo !== undefined) || [],
         },
@@ -45,6 +47,28 @@ export const productRouter = router({
       }
     })
    }),
+   updateProduct: publicProcedure
+   .input(z.object({id:z.number(), name: z.string(), description: z.string().optional(),
+    price: z.number(), photos: z.array(z.object({
+       url: z.string().url()
+     }).optional()),
+     discountAmount: z.number().default(0),}))
+     .mutation(async (opts) => {
+      const {input} = opts;
+      await prisma.product.update({
+        where: {
+          id: input.id
+        },
+        data: {
+          name: input.name,
+          discountAmount: input.discountAmount,
+          description: input.description,
+          photos: {
+            create: input.photos?.filter((photo) => photo !== undefined) || [],
+          }
+        }
+      })
+     }),
    deleteProductById: publicProcedure
    .input(z.number())
    .mutation(async (opts) => {

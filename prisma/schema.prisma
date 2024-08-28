@@ -17,6 +17,7 @@ model User {
   orders    Order[]  // One-to-many relationship with orders
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  ShoppingCart ShoppingCart[]
 }
 
 model Product {
@@ -28,6 +29,8 @@ model Product {
   orders      Order[]  @relation("ProductOnOrder")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  discountAmount Float @default(0)
+  CartItem CartItem[]
 }
 
 model Photo {
@@ -46,4 +49,25 @@ model Order {
   status      String   @default("pending")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ShoppingCart {
+  id          Int        @id @default(autoincrement())
+  userId      Int        @unique
+  user        User       @relation(fields: [userId], references: [id])
+  cartItems   CartItem[] // Relation to items in the cart
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model CartItem {
+  id          Int        @id @default(autoincrement())
+  shoppingCartId Int
+  shoppingCart ShoppingCart @relation(fields: [shoppingCartId], references: [id])
+  productId   Int
+  product     Product    @relation(fields: [productId], references: [id])
+  quantity    Int        @default(1)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  @@unique([shoppingCartId, productId])
 }
