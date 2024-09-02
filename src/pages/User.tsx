@@ -1,7 +1,7 @@
 
 export default function UserPage() {
     return(
-    <main>
+    <main className="bg-black">
       User
     </main>
   )

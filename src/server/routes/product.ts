@@ -28,7 +28,7 @@ export const productRouter = router({
      price: z.number(), photos: z.array(z.object({
         url: z.string().url()
       }).optional()), orders: z.array(z.number()).optional(),
-      discountAmount: z.number().default(0),
+      sellLocation: z.string(),
    }))
    .mutation(async (opts) => {
     const { input } = opts;
@@ -37,7 +37,7 @@ export const productRouter = router({
         name: input.name,
         description: input.description,
         price: input.price,
-        discountAmount: input.discountAmount,
+        sellLocation: input.sellLocation,
         photos: {
           create: input.photos?.filter((photo) => photo !== undefined) || [],
         },
@@ -53,7 +53,7 @@ export const productRouter = router({
     price: z.number(), photos: z.array(z.object({
        url: z.string().url()
      }).optional()),
-     discountAmount: z.number().default(0),}))
+     sellLocation: z.string(),}))
      .mutation(async (opts) => {
       const {input} = opts;
       const product = await prisma.product.update({
@@ -62,10 +62,10 @@ export const productRouter = router({
         },
         data: {
           name: input.name,
-          discountAmount: input.discountAmount,
+          sellLocation: input.sellLocation,
           description: input.description,
           photos: {
-            create: input.photos?.filter((photo) => photo !== undefined) || [],
+            create: input.photos?.filter((photo): photo is {url: string} => photo !== undefined) || [],
           }
         }
       })

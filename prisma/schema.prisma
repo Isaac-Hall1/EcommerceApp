@@ -29,7 +29,7 @@ model Product {
   orders      Order[]  @relation("ProductOnOrder")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  discountAmount Float @default(0)
+  sellLocation String
   CartItem CartItem[]
 }
 

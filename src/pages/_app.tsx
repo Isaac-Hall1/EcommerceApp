@@ -1,10 +1,11 @@
 import type { AppType } from 'next/app'
 import { trpc } from '@/utils/trpc'
 import Navbar from './components/navbar'
+import './globals.css'
 
 const MyApp: AppType = ({Component, pageProps}) => {
   return (
-    <div>
+    <div className='bg-gray-200'>
       <Navbar/>
       <Component {...pageProps}/>
     </div>

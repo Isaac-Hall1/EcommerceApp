@@ -1,11 +1,14 @@
-/**
- * This is a Next.js page.
- */
 
 export default function IndexPage() {
-  // 💡 Tip: CMD+Click (or CTRL+Click) on `greeting` to go to the server definition
   return (
-    <main>Home</main>
+    <main>
+      <div className="min-h-screen">
+        One
+      </div>
+      <div className="min-h-screen">
+        Two
+      </div>
+    </main>
   )
 }
   
