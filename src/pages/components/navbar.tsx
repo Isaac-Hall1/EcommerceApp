@@ -9,10 +9,10 @@ export default function Navbar() {
   return (
     <nav className="pt-4 pb-4 bg-orange-950 cursor-default">
       <div className="flex flex-row items-center justify-between max-w-screen-2xl mx-auto px-2">
-        <div className="basis-3/12 flex items-center">
+        <div className="basis-3/12 flex items-center justify-center space-x-4">
           <div className="basis-1/2">
-            <a href="/" className="relative after:content-[''] after:bg-white after:h-[3px] after:w-[0%] after:left-0 after:-bottom-[5px]
-             after:rounded-xl after:absolute after:duration-300 hover:after:w-[100%]">UofU Sale</a>
+            <a href="/" className="relative after:content-[''] after:bg-white after:h-[3px] after:w-[0%] after:left-4 after:-bottom-[5px]
+             after:rounded-xl after:absolute after:duration-300 hover:after:w-[80%] pl-4">UofU Sale</a>
           </div>
           <div className="basis-1/2">
             <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="hover:cursor-pointer">
@@ -28,7 +28,8 @@ export default function Navbar() {
                       <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Kitchen Appliances</a>
                       <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Furniture</a>
                       <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Football Tickets</a>
-                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Books + Education</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">School Supplies</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Apartment/Living</a>
                       <a className="py-2 hover:text-lg hover:font-bold duration-100" href="#">Art</a>
                     </div>
                   </div>
