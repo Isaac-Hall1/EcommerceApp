@@ -12,7 +12,7 @@ export default function Navbar() {
         <div className="basis-3/12 flex items-center justify-center space-x-4">
           <div className="basis-1/2">
             <a href="/" className="relative after:content-[''] after:bg-white after:h-[3px] after:w-[0%] after:left-4 after:-bottom-[5px]
-             after:rounded-xl after:absolute after:duration-300 hover:after:w-[80%] pl-4">UofU Sale</a>
+             after:rounded-xl after:absolute after:duration-300 hover:after:w-[80%] pl-4">Ute Market</a>
           </div>
           <div className="basis-1/2">
             <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="hover:cursor-pointer">

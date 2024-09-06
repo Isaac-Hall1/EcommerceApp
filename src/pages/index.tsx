@@ -11,12 +11,12 @@ export default function IndexPage() {
             </h1>
         </div>
         <div className="flex flex-col md:flex-row mt-6">
-          <div className="mr-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Football Tickets'/></div>
-          <div className="mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Furniture'/></div>
-          <div className="mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='School Supplies'/></div>
-          <div className="ml-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Aparment/Living'/></div>
+          <div className="md:mr-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Football Tickets'/></div>
+          <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Furniture'/></div>
+          <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='School Supplies'/></div>
+          <div className="md:ml-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Aparment/Living'/></div>
         </div>
-        <div className="mt-6 min-h-96 pt-8 bg-white text-black">
+        <div className="mt-6 min-h-72 pt-8 bg-white text-black">
           <h2 className="text-black text-5xl text-center font-bold">
             How to Post a Product
           </h2>
