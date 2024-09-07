@@ -6,8 +6,13 @@ export default function Profile() {
   const[isCreate, setIsCreate] = useState(false)
   const[isDelete, setIsDelete] = useState(false)
 
+  console.log(isSettings + "+" + isCreate + "+" + isDelete)
+
+  if(isSettings === false && isCreate === false && isDelete === false)
+    setIsSettings(true)
+
   return (
-    <main>
+    <main className="max-w-screen-2xl mx-auto">
       <div className="flex flex-row bg-gray-200 min-h-screen">
         <div className="relative basis-1/6">
           <div className="text-black font-bold flex flex-row">
@@ -16,7 +21,7 @@ export default function Profile() {
               <h2 className="text-xl mt-4">Profile Options</h2>
               <button className="flex justify-start hover:text-[#BE0000] mt-2" onClick={() => {setIsSettings(true); setIsCreate(false); setIsDelete(false)}}>Settings</button>
               <button className="flex justify-start hover:text-[#BE0000] mt-2" onClick={() => {setIsCreate(true); setIsSettings(false); setIsDelete(false)}}>Create Product</button>
-              <button className="flex justify-start hover:text-[#BE0000] mt-2" onClick={() => {setIsDelete(true); setIsSettings(false); setIsCreate(false)}}>Delete Product</button>
+              <button className="flex justify-start hover:text-[#BE0000] mt-2" onClick={() => {setIsDelete(true); setIsSettings(false); setIsCreate(false)}}>My Products</button>
             </div>
             <div className="basis-1/5"></div>
           </div>
@@ -28,8 +33,4 @@ export default function Profile() {
       </div>
     </main>
   )
-}
-
-function usetState(): [any, any] {
-  throw new Error("Function not implemented.");
 }

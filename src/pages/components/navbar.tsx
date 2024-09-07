@@ -15,15 +15,19 @@ export default function Navbar() {
              after:rounded-xl after:absolute after:duration-300 hover:after:w-[80%] pl-4">Ute Market</a>
           </div>
           <div className="basis-1/2">
-            <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="hover:cursor-pointer">
-              <a>Categories</a>
+            <div>
+              <a className="hover:cursor-pointer" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>Categories</a>
               {open && (
-                <div className="absolute -translate-x-[88px] top-[96px] border-solid border-[3px]
-                 border-orange-950 text-black shadow-2xl animate-fadeIn bg-gray-200">
+                <div onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+                  <div
+                  className="absolute z-50 -translate-x-[88px] top-[96px] border-solid border-[3px]
+                            border-orange-950 text-black shadow-2xl animate-fadeIn bg-white">
                   <div className="absolute h-14 -top-14 left-0 right-0 cursor-default"></div>
-                  <div className="absolute -top-[10px] h-0 w-0 translate-x-[118px] border-l-transparent
-                   border-r-transparent border-b-[10px] border-l-[7px] border-r-[7px] border-orange-950 "></div>
-                  <div className="w-64">
+                  <div
+                    className="absolute z-50 -top-[10px] h-0 w-0 translate-x-[118px] border-l-transparent
+                              border-r-transparent border-b-[10px] border-l-[7px] border-r-[7px] border-orange-950">
+                  </div>
+                  <div className="w-64 z-50">
                     <div className="flex flex-col pl-4">
                       <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Kitchen Appliances</a>
                       <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Furniture</a>
@@ -34,6 +38,7 @@ export default function Navbar() {
                     </div>
                   </div>
                 </div>
+              </div>
               )}
             </div>
           </div>
@@ -58,7 +63,7 @@ export default function Navbar() {
           </div>
              <div>
                <button className="hover:text-black hover:bg-gray-100 duration-300 rounded-2xl p-2">
-                 <span>Insperation</span>
+                 <a href="/Insperation">Insperation</a>
                </button>
              </div>
           <div>

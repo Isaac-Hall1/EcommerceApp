@@ -23,12 +23,23 @@ export const productRouter = router({
     })
     return product
   }),
+  productsByCategory: publicProcedure
+  .input(z.string())
+  .query(async (opts) => {
+    const { input } = opts;
+    const product = await prisma.product.findMany({
+      where: {
+        Category: input
+      }
+    })
+    return product
+  }),
   createProduct: publicProcedure
   .input(z.object({name: z.string(), description: z.string().optional(),
      price: z.number(), photos: z.array(z.object({
-        url: z.string().url()
+        File: z.string().url()
       }).optional()), orders: z.array(z.number()).optional(),
-      sellLocation: z.string(),
+      sellLocation: z.string(), category: z.string()
    }))
    .mutation(async (opts) => {
     const { input } = opts;
@@ -38,6 +49,7 @@ export const productRouter = router({
         description: input.description,
         price: input.price,
         sellLocation: input.sellLocation,
+        Category: input.category,
         photos: {
           create: input.photos?.filter((photo) => photo !== undefined) || [],
         },
