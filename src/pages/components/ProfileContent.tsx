@@ -1,19 +1,11 @@
 import { useState } from "react";
 import PhotoUpload from "./Photos";
+import { trpc } from "@/utils/trpc";
 
 type props = {
   Settings: boolean,
   Create: boolean,
   Delete: boolean,
-}
-
-interface product {
-  productName: string,
-  productDescription: string,
-  productPrice: number,
-  sellLocation: string,
-  category: string,
-  photos: File[]
 }
 
 export default function ProfileContent({Settings, Create, Delete} : props) {
@@ -22,13 +14,67 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
   const [productName, setProductName] = useState('')
   const [productDescription, setProductDescription] = useState('')
   const [price, setPrice] = useState(0)
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState('Kitchen Appliance')
   const [photos, setPhotos] = useState<File[]>([]);
-  const [sellLocation, setSellLocation] = useState('')
+  const [sellLocation, setSellLocation] = useState('Kahlert')
 
   const handlePhotoChange = (newPhotos: File[]) => {
     setPhotos(newPhotos)
   }
+
+  // TODO: create s3 bucket, tell backend to create however many unique url's for every image and store urls in product
+  // then send each image to s3 bucket with its url, when grabbing product, have it get s3 bucket images from url's that 
+  // are gotten from product.
+
+  const newProd = trpc.products.createProduct.useMutation()
+  const createProduct = async () => {
+      const photoLen: number = photos.length
+      try {
+        // Call the mutation to create the product
+        newProd.mutate(
+          {
+            name: productName,
+            price: price,
+            sellLocation: sellLocation,
+            category: category,
+            description: productDescription,
+            photos: photoLen
+          },
+          {
+            onSuccess: async (data) => {
+              // data contains the newly created product including the photos
+              console.log('Product created successfully:', data);
+    
+              // Use the photo URLs from the newly created product
+              await Promise.all(
+                data.photos.map(async (photo, index) => {
+                  try {
+                    await fetch(photo.imgData, {
+                      method: "PUT",
+                      headers: {
+                        "Content-Type": "multipart/form-data"
+                      },
+                      body: photos[index] // Assuming `photos` is an array of files
+                    });
+                  } catch (error) {
+                    console.error('Error uploading photo:', error);
+                  }
+                })
+              );
+            },
+            onError: (error) => {
+              console.error('Error creating product:', error);
+              alert('Failed to create product. Please try again.');
+            }
+          }
+        );
+      } catch (error) {
+        console.error('Error creating product:', error);
+        alert('Failed to create product. Please try again.');
+      }
+  };    
+  
+
 
   return (
     <div className="text-black">
@@ -62,7 +108,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
       </div>
       <div className="mt-4 ml-8">
         <h3 className="text-2xl font-bold">Product Values</h3>
-        <form>
+        <form onSubmit={(e) => {e.preventDefault(); createProduct();}}>
           <div className="mt-2">
             <label htmlFor="Name">Product Name: </label>
             <input id="Name" name="Name" type="text" placeholder="Product Name" className="pl-2 rounded-md" value={productName} onChange={(e) => setProductName(e.target.value)}></input>
@@ -109,7 +155,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
             <PhotoUpload onPhotoChange={handlePhotoChange}/>
           </div>
           <div className="absolute bottom-4 right-4">
-            <button className="bg-[#BE0000]  text-white mb-28 px-4 p-2 rounded-md hover:bg-[#8c3030]" type="submit">Create Product</button>
+            <button className="bg-[#BE0000]  text-white mb-28 px-4 p-2 rounded-md hover:bg-[#8c3030]">Create Product</button>
           </div>
         </form>
       </div>

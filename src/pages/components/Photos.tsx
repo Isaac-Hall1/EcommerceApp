@@ -11,7 +11,9 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoChange }) => {
     if (event.target.files) {
       const filesArray = Array.from(event.target.files);
       if (photos.length + filesArray.length <= 5) {
-        setPhotos([...photos, ...filesArray]);
+        const updatedPhotos = [...photos, ...filesArray];
+        setPhotos(updatedPhotos);
+        onPhotoChange(updatedPhotos); 
       } else {
         alert('You can only upload up to 5 photos.');
       }

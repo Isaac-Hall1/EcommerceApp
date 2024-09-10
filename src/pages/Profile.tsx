@@ -1,12 +1,11 @@
 import { useState } from "react";
 import ProfileContent from "./components/ProfileContent";
+import { trpc } from "@/utils/trpc";
 
 export default function Profile() {
   const[isSettings, setIsSettings] = useState(false)
   const[isCreate, setIsCreate] = useState(false)
   const[isDelete, setIsDelete] = useState(false)
-
-  console.log(isSettings + "+" + isCreate + "+" + isDelete)
 
   if(isSettings === false && isCreate === false && isDelete === false)
     setIsSettings(true)
