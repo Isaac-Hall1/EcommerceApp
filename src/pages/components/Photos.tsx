@@ -20,10 +20,6 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoChange }) => {
     }
   };
 
-  const removePhoto = (index: number) => {
-    setPhotos(photos.filter((_, i) => i !== index));
-  };
-
   return (
     <div className="photo-upload">
       <input
@@ -33,24 +29,6 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onPhotoChange }) => {
         onChange={handlePhotoUpload}
         disabled={photos.length >= 5}
       />
-      <div className="photo-preview mt-4">
-        {photos.map((photo, index) => (
-          <div key={index} className="photo-item">
-            <img
-              src={URL.createObjectURL(photo)}
-              alt={`Uploaded ${index + 1}`}
-              className="w-20 h-20 object-cover"
-            />
-            <button
-              type="button"
-              onClick={() => removePhoto(index)}
-              className="text-red-500 mt-2"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
-      </div>
       {photos.length >= 5 && (
         <p className="text-red-500 mt-2">Maximum of 5 photos uploaded.</p>
       )}

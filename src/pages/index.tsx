@@ -3,7 +3,7 @@ import Card from "./components/CategoryCard"
 
 export default function IndexPage() {
   return (
-    <main className='bg-cover h-screen' style={{backgroundImage: `url('https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/278458740_360154352821770_4906019428737952204_n.jpg?stp=dst-jpg_p960x960&_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=uXjLNqUtb2oQ7kNvgEBEMob&_nc_ht=scontent-lax3-1.xx&oh=00_AYCXfZqLhwgLPLJVbH5ES61RiMEvzgRVySOY99EdIMGKrA&oe=66DDD964')`}}>
+    <main className='bg-cover h-screen' style={{backgroundImage: `url('https://utemarketbucket.s3.amazonaws.com/Uni_of_Utah_-_banner.jpg')`}}>
       <div className="min-h-screen max-w-screen-xl mx-auto text-white flex flex-col">
         <div className="py-20 bg-[#BE0000]">
             <h1 className="text-5xl font-bold text-center">

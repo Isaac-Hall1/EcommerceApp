@@ -55,14 +55,17 @@ export const productRouter = router({
    .mutation(async (opts) => {
     const { input } = opts;
     const urlArr: string[] = []
+    const imgLink: string[] = []
     for(let i = 0; i < input.photos; i++){
+      let keyVal: string = uuidv4()
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME, // Your S3 bucket name
-        Key: uuidv4(), // Generate a unique file name
+        Key: keyVal, // Generate a unique file name
         Expires: 60, // URL expires in 60 seconds
       };
       // Generate a presigned URL for the client to use to upload the file
       const url = await s3.getSignedUrlPromise('putObject', params);
+      imgLink[i] = 'https://utemarketbucket.s3.amazonaws.com/' + keyVal
       urlArr[i] = url
     }
     const product = await prisma.product.create({
@@ -77,7 +80,7 @@ export const productRouter = router({
         },
         photos: {
           // for each photo in the photo array make imgData the url
-          create: urlArr.map(url => ({
+          create: imgLink.map(url => ({
             imgData: url,
           })),
         },
@@ -86,7 +89,7 @@ export const productRouter = router({
         photos: true,  // Include the photos relation in the returned product
       },
     })
-    return product
+    return {'product': product, 'urls': urlArr}
    }),
    updateProduct: publicProcedure
    .input(z.object({id:z.number(), name: z.string(), description: z.string().optional(),
@@ -139,5 +142,10 @@ export const productRouter = router({
       },
     })
     return product
+   }),
+   deleteAllProducts: publicProcedure
+   .mutation(async () => {
+      const products = await prisma.product.findMany()
+      return products
    }),
 })

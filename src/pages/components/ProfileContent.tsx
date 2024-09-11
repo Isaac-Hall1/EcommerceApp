@@ -22,6 +22,11 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
     setPhotos(newPhotos)
   }
 
+  const removePhoto = (index: number) => {
+    const updatedPhotos = photos.filter((_, i) => i !== index);
+    setPhotos(updatedPhotos);
+  };
+
   // TODO: create s3 bucket, tell backend to create however many unique url's for every image and store urls in product
   // then send each image to s3 bucket with its url, when grabbing product, have it get s3 bucket images from url's that 
   // are gotten from product.
@@ -31,6 +36,10 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
       const photoLen: number = photos.length
       try {
         // Call the mutation to create the product
+        if(photos.length === 0){
+          alert('must have at least one photo')
+          return
+        }
         newProd.mutate(
           {
             name: productName,
@@ -42,14 +51,11 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
           },
           {
             onSuccess: async (data) => {
-              // data contains the newly created product including the photos
-              console.log('Product created successfully:', data);
-    
               // Use the photo URLs from the newly created product
               await Promise.all(
-                data.photos.map(async (photo, index) => {
+                data.urls.map(async (url, index) => {
                   try {
-                    await fetch(photo.imgData, {
+                    await fetch(url, {
                       method: "PUT",
                       headers: {
                         "Content-Type": "multipart/form-data"
@@ -68,6 +74,12 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
             }
           }
         );
+        setProductName("")
+        setCategory('Kitchen Appliance')
+        handlePhotoChange([])
+        setPrice(0)
+        setProductDescription("")
+        setSellLocation('Kahlert')
       } catch (error) {
         console.error('Error creating product:', error);
         alert('Failed to create product. Please try again.');
@@ -153,6 +165,24 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
           <div className="flex md:flex-row flex-col mt-2">
             <label htmlFor="Photo" className="mr-2">Add Product Photos (Max of Five): </label>
             <PhotoUpload onPhotoChange={handlePhotoChange}/>
+            <div className="photo-preview mt-4">
+              {photos.map((photo, index) => (
+              <div key={index} className="photo-item">
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt={`Uploaded ${index + 1}`}
+                  className="w-20 h-20 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(index)}
+                  className="text-red-500 mt-2"
+                >
+                  Remove
+                </button>
+              </div>
+        ))}
+      </div>
           </div>
           <div className="absolute bottom-4 right-4">
             <button className="bg-[#BE0000]  text-white mb-28 px-4 p-2 rounded-md hover:bg-[#8c3030]">Create Product</button>
@@ -163,7 +193,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
       </div>
     ) : Delete ? (
       <div>
-        Delete
+        
       </div>
     ) : (
       <p>Loading...</p>
