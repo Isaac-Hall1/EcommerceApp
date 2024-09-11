@@ -30,7 +30,7 @@ export default function SignIn({setSignInOpen}: prop) {
         // Create the session
         const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
         const session = await encrypt({ user, expires });
-        document.cookie = 'auth-token=' + session + expires + '; path=/'
+        document.cookie = 'auth-token=' + session + '; path=/'
       }
     })
   } catch (error) {

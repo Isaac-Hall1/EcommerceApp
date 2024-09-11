@@ -53,7 +53,7 @@ export const productRouter = router({
       sellLocation: z.string(), category: z.string(), photos: z.number(),
    }))
    .mutation(async ({input, ctx}) => {
-    const { id } = ctx.session
+    const { username } = ctx.session.user
     const { name, description, price, orders, sellLocation, category, photos } = input;
     const urlArr: string[] = []
     const imgLink: string[] = []
@@ -77,7 +77,7 @@ export const productRouter = router({
         sellLocation: sellLocation,
         Category: category,
         user : {
-          connect: {id: id}
+          connect: {username: username}
         },
         orders: {
           connect: orders?.map((id) => ({ id })) || []

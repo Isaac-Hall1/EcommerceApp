@@ -12,7 +12,7 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  username String
+  username String    @unique
   email     String   @unique
   password  String
   orders    Order[]  // One-to-many relationship with orders
@@ -24,8 +24,8 @@ model User {
 
 model Product {
   id          Int      @id @default(autoincrement())
-  user     User     @relation(fields: [userId], references: [id])
-  userId   Int
+  user        User     @relation(fields: [userName], references: [username])
+  userName    String
   name        String
   description String?
   price       Float

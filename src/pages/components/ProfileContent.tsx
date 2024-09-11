@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PhotoUpload from "./Photos";
 import { trpc } from "@/utils/trpc";
+import { logout } from "./userSignIn";
 
 type props = {
   Settings: boolean,
@@ -110,6 +111,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
             <button className="bg-[#BE0000]  text-white mb-28 px-4 p-2 rounded-md hover:bg-[#8c3030]" type="submit">Save Settings</button>
           </div>
         </form>
+        <button onClick={() => logout()}>Logout</button>
       </div>
     </div>
     ) : Create ? (

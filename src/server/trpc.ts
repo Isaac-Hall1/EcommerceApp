@@ -26,12 +26,9 @@ const isAuthed = t.middleware(async ({next, ctx}) => {
 
     const token = req.cookies['auth-token']
 
-
     if(!token) throw new TRPCError({code:'UNAUTHORIZED'})
 
     const payload = await decrypt(token)
-
-    console.log(token + payload.data)
 
     return next({
       ctx: {
