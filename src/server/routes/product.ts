@@ -1,4 +1,4 @@
-import { publicProcedure, router } from "../trpc"
+import { protectedProcedure, publicProcedure, router } from "../trpc"
 import { prisma } from "../db"
 import {z} from 'zod'
 import {s3} from '../../utils/awsConfig'
@@ -47,16 +47,17 @@ export const productRouter = router({
     })
     return product
   }),
-  createProduct: publicProcedure
+  createProduct: protectedProcedure
   .input(z.object({name: z.string(), description: z.string().optional(),
      price: z.number(), orders: z.array(z.number()).optional(),
-      sellLocation: z.string(), category: z.string(), photos: z.number()
+      sellLocation: z.string(), category: z.string(), photos: z.number(),
    }))
-   .mutation(async (opts) => {
-    const { input } = opts;
+   .mutation(async ({input, ctx}) => {
+    const { id } = ctx.session
+    const { name, description, price, orders, sellLocation, category, photos } = input;
     const urlArr: string[] = []
     const imgLink: string[] = []
-    for(let i = 0; i < input.photos; i++){
+    for(let i = 0; i < photos; i++){
       let keyVal: string = uuidv4()
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME, // Your S3 bucket name
@@ -70,13 +71,16 @@ export const productRouter = router({
     }
     const product = await prisma.product.create({
       data: {
-        name: input.name,
-        description: input.description,
-        price: input.price,
-        sellLocation: input.sellLocation,
-        Category: input.category,
+        name: name,
+        description: description,
+        price: price,
+        sellLocation: sellLocation,
+        Category: category,
+        user : {
+          connect: {id: id}
+        },
         orders: {
-          connect: input.orders?.map((id) => ({ id })) || []
+          connect: orders?.map((id) => ({ id })) || []
         },
         photos: {
           // for each photo in the photo array make imgData the url

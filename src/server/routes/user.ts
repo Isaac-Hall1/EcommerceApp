@@ -21,12 +21,25 @@ export const userRouter = router({
     });
     return user;
   }),
-  createUser: publicProcedure
+  getUserByCreds: publicProcedure
   .input(z.object({email: z.string(), password: z.string()}))
+  .query(async ({input}) => {
+    const { email, password } = input;
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+        password: password
+      }
+    });
+    return user;
+  }),
+  createUser: publicProcedure
+  .input(z.object({username: z.string(), email: z.string(), password: z.string()}))
   .mutation(async (opts) => {
     const {input} = opts;
     const user = await prisma.user.create({
       data: {
+        username: input.username,
         email: input.email,
         password: input.password,
       },

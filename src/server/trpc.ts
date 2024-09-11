@@ -7,13 +7,46 @@
  * @link https://trpc.io/docs/v11/router
  * @link https://trpc.io/docs/v11/procedures
  */
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
+import { CreateNextContextOptions } from '@trpc/server/adapters/next';
+import { decrypt } from '@/utils/lib';
 
-const t = initTRPC.create();
+export const createTRPCContext = (_opts: CreateNextContextOptions) => {
+  const {req, res} = _opts
+  return {
+    req,
+    res,
+  }
+}
+
+const t = initTRPC.context<Awaited<ReturnType<typeof createTRPCContext>>>().create();
+
+const isAuthed = t.middleware(async ({next, ctx}) => {
+    const {req, res} = ctx
+
+    const token = req.cookies['auth-token']
+
+
+    if(!token) throw new TRPCError({code:'UNAUTHORIZED'})
+
+    const payload = await decrypt(token)
+
+    console.log(token + payload.data)
+
+    return next({
+      ctx: {
+        session: payload
+      }
+    })
+  })
 
 /**
  * Unprotected procedure
  **/
+export const middleware = t.middleware
+
 export const publicProcedure = t.procedure;
+
+export const protectedProcedure = t.procedure.use(isAuthed)
 
 export const router = t.router;
