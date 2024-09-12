@@ -1,10 +1,15 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import searchIcon from '../../assets/searchIcon.png'
 import SignIn from './SignInBox'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [signInOpen, setSignInOpen] = useState(false)
+  const [isSignedIn, setIsSignedIn] = useState(false)
+  useEffect(() => {
+    if(document.cookie)
+      setIsSignedIn(true)
+  })
 
   return (
     <nav className="pt-4 pb-4 bg-orange-950 cursor-default">
@@ -55,11 +60,18 @@ export default function Navbar() {
         </div>
         <div className="basis-3/12 flex items-center justify-center space-x-4">
           <div className="px-4 ">
-            <button onClick={() => setSignInOpen(true)}className="relative after:content-[''] after:bg-white after:h-[3px] after:w-[0%] after:left-0 after:-bottom-[5px]
-             after:rounded-xl after:absolute after:duration-300 hover:after:w-[100%]">Sign In</button>
-             {signInOpen && (
-                <SignIn setSignInOpen={setSignInOpen}/>
-             )}
+            {isSignedIn ? (
+              <a href="/Profile" className="relative after:content-[''] after:bg-white after:h-[3px] after:w-[0%] after:left-0 after:-bottom-[5px]
+              after:rounded-xl after:absolute after:duration-300 hover:after:w-[100%]">Profile</a>
+            ):(
+              <>
+                <button onClick={() => setSignInOpen(true)} className="relative after:content-[''] after:bg-white after:h-[3px] after:w-[0%] after:left-0 after:-bottom-[5px]
+                after:rounded-xl after:absolute after:duration-300 hover:after:w-[100%]">Sign In</button>
+                {signInOpen && (
+                  <SignIn setSignInOpen={setSignInOpen}/>
+                )}
+              </>
+            )}
           </div>
              <div>
                <button className="hover:text-black hover:bg-gray-100 duration-300 rounded-2xl p-2">

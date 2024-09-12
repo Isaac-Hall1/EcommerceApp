@@ -1,4 +1,4 @@
-import { publicProcedure, router } from "../trpc"
+import { protectedProcedure, publicProcedure, router } from "../trpc"
 import { prisma } from "../db"
 import {z} from 'zod'
 
@@ -57,21 +57,26 @@ export const userRouter = router({
     })
     return user
   }),
-  updateUser: publicProcedure
+  updateUser: protectedProcedure
   .input(z.object({
-    id: z.number(),
-    email: z.string(),
-    password:z.string()
+    newUsername: z.string(),
+    newPassword:z.string()
   }))
-  .mutation(async ({ input }) => {
-    const {email, password, id} = input;
+  .mutation(async ({ input, ctx }) => {
+    const {id, username, password} = ctx.session.user
+    let {newUsername, newPassword} = input;
+    if(newUsername === "") 
+      newUsername = username
+    if(password === "")
+      newPassword = password
+
     const user = await prisma.user.update({
       where:{
         id: id
       },
       data: {
-        email: email,
-        password: password
+        username: newUsername,
+        password: newPassword
       }
     })
     return user

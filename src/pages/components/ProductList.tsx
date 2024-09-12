@@ -1,6 +1,7 @@
 import { trpc } from "@/utils/trpc";
 import { useState } from "react";
-import ProductCard from "../components/ProductCards";
+import ProductCard from "./ProductCards";
+import { useRouter } from "next/router";
 
 type product = { 
   id: number; 
@@ -10,6 +11,7 @@ type product = {
   description: string | null; 
   price: number; 
   sellLocation: string; 
+  userName: string;
   photos: { 
     id: number; 
     imgData: string; 
@@ -19,7 +21,7 @@ type product = {
 
 export default function ProductsPage() {
   const [sortOption, setSortOption] = useState('Newest');
-  
+  const router = useRouter();
 
   const allProducts = trpc.products.productList.useQuery()
   const productsWithPhotos: product[] = []
@@ -54,11 +56,15 @@ export default function ProductsPage() {
             </form>
           </div>
           <div>
-            <div className="md:grid-rows-4 grid-rows-2">
+            <div className="grid md:grid-cols-4 grid-cols-2 gap-16">
               {productsWithPhotos.map((product) => (
-                <div className="md:w-[20%] w-[40%]">
-                  <ProductCard name={product.name} price={product.price} photo={product.photos[0].imgData} key={product.id}/>
+                <>
+                <div className="w-fit hover:cursor-pointer" onClick={() => {
+                  router.push(`/Products/${product.id}`)
+                }}>
+                  <ProductCard name={product.name} price={product.price} photo={product.photos[0].imgData} username={product.userName} key={product.id}/>
                 </div>
+                </>
                 ))}
             </div>
           </div>

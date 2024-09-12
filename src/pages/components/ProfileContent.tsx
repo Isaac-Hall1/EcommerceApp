@@ -19,18 +19,34 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
   const [photos, setPhotos] = useState<File[]>([]);
   const [sellLocation, setSellLocation] = useState('Kahlert')
 
-  const handlePhotoChange = (newPhotos: File[]) => {
-    setPhotos(newPhotos)
-  }
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const filesArray = Array.from(event.target.files);
+      if (photos.length + filesArray.length <= 5) {
+        const updatedPhotos = [...photos, ...filesArray];
+        setPhotos(updatedPhotos);
+      } else {
+        alert('You can only upload up to 5 photos.');
+      }
+    }
+  };
 
   const removePhoto = (index: number) => {
     const updatedPhotos = photos.filter((_, i) => i !== index);
     setPhotos(updatedPhotos);
   };
 
-  // TODO: create s3 bucket, tell backend to create however many unique url's for every image and store urls in product
-  // then send each image to s3 bucket with its url, when grabbing product, have it get s3 bucket images from url's that 
-  // are gotten from product.
+  const updUser = trpc.user.updateUser.useMutation()
+  const updateUser = async () => {
+    try {
+      updUser.mutate({
+        newUsername: username,
+        newPassword: password
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const newProd = trpc.products.createProduct.useMutation()
   const createProduct = async () => {
@@ -77,7 +93,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
         );
         setProductName("")
         setCategory('Kitchen Appliance')
-        handlePhotoChange([])
+        setPhotos([])
         setPrice(0)
         setProductDescription("")
         setSellLocation('Kahlert')
@@ -98,7 +114,9 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
       </div>
       <div className="mt-4 ml-8">
         <h3 className="text-2xl font-bold">Manage Profile</h3>
-        <form>
+        <form
+          onSubmit={() => updateUser()}
+          >
           <div className="mt-2">
             <label htmlFor="Username">Change Username: </label>
             <input id="Username" name="Username" value={username} onChange={(e) => setUsername(e.target.value)} type="text" placeholder="New Username" className="pl-2 rounded-md"/>
@@ -166,7 +184,18 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
           </div>
           <div className="flex md:flex-row flex-col mt-2">
             <label htmlFor="Photo" className="mr-2">Add Product Photos (Max of Five): </label>
-            <PhotoUpload onPhotoChange={handlePhotoChange}/>
+            <div className="photo-upload">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                disabled={photos.length >= 5}
+                />
+                {photos.length >= 5 && (
+                  <p className="text-red-500 mt-2">Maximum of 5 photos uploaded.</p>
+                )}
+              </div>
             <div className="photo-preview mt-4">
               {photos.map((photo, index) => (
               <div key={index} className="photo-item">

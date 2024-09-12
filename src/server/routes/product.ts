@@ -22,7 +22,7 @@ export const productRouter = router({
   productById: publicProcedure
   .input(z.number())
   .query(async (opts) => {
-    const { input } = opts;
+    const {input} = opts
     const product = await prisma.product.findUnique({
       where: {
         id: input
@@ -32,6 +32,19 @@ export const productRouter = router({
       },
     })
     return product
+  }),
+  productByUser: protectedProcedure
+  .query(async ({ctx}) => {
+    const { username } = ctx.session.user;
+    const products = await prisma.product.findMany({
+      where: {
+        userName: username
+      },
+      include: {
+        photos: true,  // Include the photos relation in the returned product
+      },
+    })
+    return products
   }),
   productsByCategory: publicProcedure
   .input(z.string())
