@@ -1,6 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import { NextResponse } from "next/server";
 import { NextApiRequest } from "next";
+import { TRPCError } from "@trpc/server";
+import { error } from "console";
 
 const secretKey = "secret";
 const key = new TextEncoder().encode(secretKey);
@@ -13,11 +15,10 @@ export async function encrypt(payload: any) {
     .sign(key);
 }
 
-export async function decrypt(input: string): Promise<any> {
+export async function decrypt(input: string): Promise<any>{
   const { payload } = await jwtVerify(input, key, {
     algorithms: ["HS256"],
   });
-  console.log(payload)
   return payload;
 }
 export async function getSession(req: NextApiRequest) {

@@ -42,9 +42,11 @@ export default function SignIn({setSignInOpen}: prop) {
   const handleSubmit = async () => {
     if(hasAccount){
       await login(email, password)
+
     } else {
       await signUp(username, password, email)
     }
+    window.location.reload();
   }
 
   return (

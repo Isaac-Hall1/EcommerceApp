@@ -2,9 +2,7 @@ import { encrypt } from "@/utils/lib"
 import { trpcClient } from "@/utils/trpc"
 import { TRPCError } from "@trpc/server"
 
-
 export async function login(email: string, password: string) {
-
   let user;
   try {
     user = await trpcClient.user.getUserByCreds.query({ email: email, password: password })
@@ -21,5 +19,5 @@ export async function login(email: string, password: string) {
 
 export async function logout() {
   document.cookie = "auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
+  window.location.reload()
 }

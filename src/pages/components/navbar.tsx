@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import searchIcon from '../../assets/searchIcon.png'
 import SignIn from './SignInBox'
+import { GetServerSideProps } from "next";
+import {parseCookies} from 'nookies'
+import AuthContext from "./AuthProvider";
 
-export default function Navbar() {
+const Navbar = () => {
   const [open, setOpen] = useState(false)
   const [signInOpen, setSignInOpen] = useState(false)
-  const [isSignedIn, setIsSignedIn] = useState(false)
-  useEffect(() => {
-    if(document.cookie)
-      setIsSignedIn(true)
-  })
+  const { user, authReady } = useContext(AuthContext)
 
   return (
     <nav className="pt-4 pb-4 bg-orange-950 cursor-default">
@@ -60,7 +59,9 @@ export default function Navbar() {
         </div>
         <div className="basis-3/12 flex items-center justify-center space-x-4">
           <div className="px-4 ">
-            {isSignedIn ? (
+          {authReady && (
+            <>
+            {user ? (
               <a href="/Profile" className="relative after:content-[''] after:bg-white after:h-[3px] after:w-[0%] after:left-0 after:-bottom-[5px]
               after:rounded-xl after:absolute after:duration-300 hover:after:w-[100%]">Profile</a>
             ):(
@@ -72,7 +73,9 @@ export default function Navbar() {
                 )}
               </>
             )}
-          </div>
+            </>
+            )}
+            </div>
              <div>
                <button className="hover:text-black hover:bg-gray-100 duration-300 rounded-2xl p-2">
                  <a href="/Insperation">Insperation</a>
@@ -88,3 +91,4 @@ export default function Navbar() {
     </nav>
   )
 }
+export default Navbar

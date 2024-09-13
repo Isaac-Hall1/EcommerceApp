@@ -12,8 +12,8 @@ export default function ProductCard({name, price, photo, username}: prop) {
 
   return (
     <div className="flex flex-col mt-4">
-      <div className="basis-4/5">
-        <img src={photo} alt='ImageNotFound'/>
+      <div className="basis-4/5 flex">
+        <img className='h-64 w-96 object-cover shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100' src={photo} alt='ImageNotFound'/>
       </div>
       <div className="flex flex-col">
         <span className="text-lg font-bold">{name}</span>

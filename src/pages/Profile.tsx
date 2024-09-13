@@ -11,8 +11,8 @@ export default function Profile() {
     setIsSettings(true)
 
   return (
-    <main className="max-w-screen-2xl mx-auto">
-      <div className="flex flex-row bg-gray-200 min-h-screen">
+    <main className="bg-gray-200">
+      <div className="flex flex-row min-h-screen max-w-screen-2xl mx-auto">
         <div className="relative basis-1/6">
           <div className="text-black font-bold flex flex-row">
             <div className="basis-1/5"></div>
