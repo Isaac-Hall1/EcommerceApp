@@ -1,6 +1,6 @@
 import ProductsPage from "../components/ProductList"
 
-export default function TestPage() {
+export default function AllProducts() {
   return (
     <ProductsPage/>
   )
