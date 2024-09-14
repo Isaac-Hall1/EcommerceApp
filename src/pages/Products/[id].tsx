@@ -28,7 +28,7 @@ export default function ProductDetails() {
     <main className="bg-gray-200 text-black">
       <div className="max-w-screen-xl min-h-screen mx-auto">
         <div className="flex flex-col">
-          <div className="flex flex-row mt-10">
+          <div className="flex flex-row mt-16">
             <div className="basis-2/3 flex flex-row">
               <div className="basis-[10%] flex flex-col">
                 {product?.photos.map((photo, index) => (
@@ -48,7 +48,7 @@ export default function ProductDetails() {
               <div className="pl-10 flex flex-row basis-[90%] min-h-[600px]">
                 <div className="basis-1/12 flex justify-start">
                   <div className="flex items-center">
-                    <button className='p-4 mr-3 rounded-full bg-white shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100' onClick={() => {
+                    <button className='size-16 mr-3 rounded-full bg-white shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100' onClick={() => {
                       if(product?.photos){
                         if(currentIndex >= 1) {
                           setCurrentIndex(currentIndex - 1)
@@ -64,11 +64,11 @@ export default function ProductDetails() {
                   </div>
                 </div>
                 <div className="basis-10/12 fles justify-center">
-                  <img className="h-[600px] w-full object-cover shadow-md shadow-gray-500" src={currentPhoto} alt={product?.photos[0].imgData}/>
+                  <img className="h-[600px] w-full object-cover shadow-md shadow-gray-500 rounded-md" src={currentPhoto} alt={product?.photos[0].imgData}/>
                 </div>
                 <div className="basis-1/12 flex justify-end">
                   <div className="flex items-center">
-                    <button className='ml-3 p-4 rounded-full bg-white shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100' onClick={() => {
+                    <button className='ml-3 size-16 rounded-full bg-white shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100' onClick={() => {
                       if(product?.photos){
                         if(currentIndex < product?.photos.length - 1) {
                           setCurrentIndex(currentIndex + 1)
@@ -87,8 +87,9 @@ export default function ProductDetails() {
               <h1 className="text-4xl font-bold">{product?.name}</h1>
               <h2 className="text-2xl mt-4">Price: ${product?.price}</h2>
               <span className="text-md mt-4">{product?.description}</span>
-              <button className="text-white mt-40 px-36 py-3 bg-[#BE0000] rounded-lg shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100">Contact {product?.userName}</button>
-              <button className="text-white mt-10 px-36 py-3 bg-[#BE0000] rounded-lg shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100">Favorite</button>
+              <span className="text-md mt-4">Wants to sell at: {product?.sellLocation}</span>
+              <button className="text-white mt-40 px-36 py-3 bg-[#BE0000] rounded-lg shadow-md shadow-gray-500 hover:shadow-gray-700 hover:bg-white hover:text-black duration-75">Contact {product?.userName}</button>
+              <button className="text-white mt-10 px-36 py-3 bg-[#BE0000] rounded-lg shadow-md shadow-gray-500 hover:shadow-gray-700 hover:bg-white hover:text-black duration-75">Favorite</button>
             </div>
           </div>
         </div>

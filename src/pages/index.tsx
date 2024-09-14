@@ -23,7 +23,7 @@ export default function IndexPage() {
           <ul className="pt-10 text-2xl text-center">
             <li>1st: Log in to your Account with an Authentic Umail</li>
             <li>2nd: Click on profile</li>
-            <li>3rd: Choose the "Add Product" option</li>
+            <li>3rd: Choose the "Create Product" option</li>
             <li>4th: Fill out required fields</li>
           </ul>
         </div>

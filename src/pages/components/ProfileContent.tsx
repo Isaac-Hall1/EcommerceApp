@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PhotoUpload from "./Photos";
+import utahBanner from '../../assets/utahBanner.jpg'
 import { trpc } from "@/utils/trpc";
 import { logout } from "./userSignIn";
 
@@ -18,6 +18,8 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
   const [category, setCategory] = useState('Kitchen Appliance')
   const [photos, setPhotos] = useState<File[]>([]);
   const [sellLocation, setSellLocation] = useState('Kahlert')
+  const [currentIndex, setCurrentIndex] = useState<number>(0)
+  const [currentPhoto, setCurrentPhoto] = useState<File | null>(null)
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -34,6 +36,10 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
   const removePhoto = (index: number) => {
     const updatedPhotos = photos.filter((_, i) => i !== index);
     setPhotos(updatedPhotos);
+    if(updatedPhotos.length > 1)
+      setCurrentPhoto(updatedPhotos[index - 1])
+    else
+      setCurrentPhoto(null)
   };
 
   const updUser = trpc.user.updateUser.useMutation()
@@ -134,93 +140,132 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
     </div>
     ) : Create ? (
       <div>
-        <div className="relative flex flex-col h-screen">
-      <div className="flex flex-row justify-center">
-        <h2 className="font-bold text-4xl mt-4 underline underline-offset-8">Create Product</h2>
-      </div>
-      <div className="mt-4 ml-8">
-        <h3 className="text-2xl font-bold">Product Values</h3>
-        <form onSubmit={(e) => {e.preventDefault(); createProduct();}}>
-          <div className="mt-2">
-            <label htmlFor="Name">Product Name: </label>
-            <input id="Name" name="Name" type="text" placeholder="Product Name" className="pl-2 rounded-md" value={productName} onChange={(e) => setProductName(e.target.value)}></input>
-          </div>
-          <div className="mt-2">
-            <label htmlFor="Description">Product Description: </label>
-            <input id="Description" name="Description" type="text" placeholder="Product Description" className="pl-2 rounded-md" value={productDescription} onChange={(e) => setProductDescription(e.target.value)}></input>
-          </div>
-          <div className="mt-2">
-            <label htmlFor="Price">Product Price: </label>
-            <input id="Price" name="Price" type="number" placeholder="Product Price" className="pl-2 rounded-md" value={price} onChange={(e) => setPrice(parseFloat(e.target.value))}></input>
-          </div>
-          <div className="mt-2">
-            <label htmlFor="Password">Sell Location: </label>
-            <select
-              value={sellLocation}
-              onChange={(e) => setSellLocation(e.target.value)}
-              className="rounded-md pl-2"
-              >
-              <option>Kahlert</option>
-              <option>PHC</option>
-              <option>Union</option>
-              <option>Guest House</option>
-              <option>Lassonde</option>
-            </select>
-          </div>
-          <div className="mt-2">
-            <label htmlFor="Password">Category: </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="rounded-md px-2"
-              >
-              <option>Kitchen Appliances</option>
-              <option>Furninture</option>
-              <option>Football Tickets</option>
-              <option>School Supplies</option>
-              <option>Apartment/Living</option>
-              <option>Art</option>
-            </select>
-          </div>
-          <div className="flex md:flex-row flex-col mt-2">
-            <label htmlFor="Photo" className="mr-2">Add Product Photos (Max of Five): </label>
-            <div className="photo-upload">
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                disabled={photos.length >= 5}
-                />
-                {photos.length >= 5 && (
-                  <p className="text-red-500 mt-2">Maximum of 5 photos uploaded.</p>
-                )}
+        <div className="flex flex-row justify-center">
+          <h2 className="font-bold text-4xl mt-4 underline underline-offset-8">Create Product</h2>
+        </div>
+        <div className="flex flex-col">
+          <div className="flex flex-row mt-16">
+            <div className="basis-2/3 flex flex-row">
+              <div className="basis-[10%] flex flex-col">
+                {photos.map((photo, index) => (
+                  <div className="mb-4" onClick={() => removePhoto(index)}>
+                    {index === currentIndex ? (
+                      <>
+                        <img className='w-full h-20 object-cover rounded-md border-2 border-black' src={URL.createObjectURL(photo)} alt="preview image"/>
+                      </>
+                    ):(
+                      <>
+                        <img className='w-full h-20 object-cover rounded-md' src={URL.createObjectURL(photo)} alt="preview image"/>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
-            <div className="photo-preview mt-4">
-              {photos.map((photo, index) => (
-              <div key={index} className="photo-item">
-                <img
-                  src={URL.createObjectURL(photo)}
-                  alt={`Uploaded ${index + 1}`}
-                  className="w-20 h-20 object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => removePhoto(index)}
-                  className="text-red-500 mt-2"
-                >
-                  Remove
-                </button>
+              <div className="pl-10 flex flex-row basis-[90%] min-h-[600px]">
+                <div className="basis-1/12 flex justify-start">
+                  <div className="flex items-center">
+                    <button className='size-16 mr-3 rounded-full bg-white shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100' onClick={() => {
+                      if(photos.length > 0){
+                        if(currentIndex >= 1) {
+                          setCurrentIndex(currentIndex - 1)
+                          setCurrentPhoto(photos[currentIndex - 1])
+                        } else {
+                          setCurrentIndex(photos.length - 1)
+                          setCurrentPhoto(photos[photos.length - 1])
+                        }
+                      }
+                    }}>
+                      left
+                    </button>
+                  </div>
+                </div>
+                <div className="basis-10/12 fles justify-center">
+                  {currentPhoto ? (
+                    <img className="h-[600px] w-full object-cover shadow-md shadow-gray-500 rounded-md" src={URL.createObjectURL(currentPhoto)} alt="Preview photo"/>
+                  ):(
+                    <div className="h-[600px] w-full object-cover shadow-md shadow-gray-500 rounded-md"/>
+                  )}
+                </div>
+                <div className="basis-1/12 flex justify-end">
+                  <div className="flex items-center">
+                    <button className='ml-3 size-16 rounded-full bg-white shadow-md shadow-gray-500 hover:shadow-gray-700 duration-100' onClick={() => {
+                      if(photos.length > 0){
+                        if(currentIndex < photos.length - 1) {
+                          setCurrentIndex(currentIndex + 1)
+                          setCurrentPhoto(photos[currentIndex + 1])
+                        } else {
+                          setCurrentIndex(0)
+                          setCurrentPhoto(photos[0])
+                        }
+                      }
+                    }}>right</button>
+                  </div>
+                </div>
               </div>
-        ))}
-      </div>
+            </div>
+            <div className="flex flex-col ml-8 basis-1/3">
+              <form onSubmit={(e) => {e.preventDefault(); createProduct();}}>
+                <h1 className="text-4xl font-bold">
+                  <label htmlFor="Name">Product Name: </label>
+                  <input id="Name" name="Name" type="text" placeholder="Product Name" className="pl-2 rounded-md" value={productName} onChange={(e) => setProductName(e.target.value)}></input>
+                </h1>
+                <h2 className="text-2xl mt-4">
+                  <label htmlFor="Price">Product Price: </label>
+                  <input id="Price" name="Price" type="number" placeholder="Product Price" className="pl-2 rounded-md" value={price} onChange={(e) => setPrice(parseFloat(e.target.value))}></input>
+                </h2>
+                <span className="text-md mt-4">
+                  <label htmlFor="Description">Product Description: </label>
+                  <input id="Description" name="Description" type="text" placeholder="Product Description" className="pl-2 rounded-md" value={productDescription} onChange={(e) => setProductDescription(e.target.value)}></input>
+                </span>
+                <span className="text-md mt-4">
+                  <label htmlFor="Password">Sell Location: </label>
+                  <select
+                    value={sellLocation}
+                    onChange={(e) => setSellLocation(e.target.value)}
+                    className="rounded-md pl-2"
+                    >
+                    <option>Kahlert</option>
+                    <option>PHC</option>
+                    <option>Union</option>
+                    <option>Guest House</option>
+                    <option>Lassonde</option>
+                  </select>
+                </span>
+                <span className="text-md mt-4">
+                  <label htmlFor="Password">Category: </label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="rounded-md px-2"
+                    >
+                    <option>Kitchen Appliances</option>
+                    <option>Furninture</option>
+                    <option>Football Tickets</option>
+                    <option>School Supplies</option>
+                    <option>Apartment/Living</option>
+                    <option>Art</option>
+                  </select>
+                </span>
+                <div>
+                  <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  disabled={photos.length >= 5}
+                  />
+                  {photos.length >= 5 && (
+                    <p className="text-red-500 mt-2">Maximum of 5 photos uploaded.</p>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
+        </div>
+
           <div className="absolute bottom-4 right-4">
             <button className="bg-[#BE0000]  text-white mb-28 px-4 p-2 rounded-md hover:bg-[#8c3030]">Create Product</button>
           </div>
-        </form>
-      </div>
-    </div>
       </div>
     ) : Delete ? (
       <div>
