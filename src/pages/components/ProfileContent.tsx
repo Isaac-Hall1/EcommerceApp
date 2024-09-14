@@ -2,14 +2,15 @@ import { useState } from "react";
 import utahBanner from '../../assets/utahBanner.jpg'
 import { trpc } from "@/utils/trpc";
 import { logout } from "./userSignIn";
+import ProductsPage from "./ProductList";
 
 type props = {
   Settings: boolean,
   Create: boolean,
-  Delete: boolean,
+  myProducts: boolean,
 }
 
-export default function ProfileContent({Settings, Create, Delete} : props) {
+export default function ProfileContent({Settings, Create, myProducts} : props) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [productName, setProductName] = useState('')
@@ -20,6 +21,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
   const [sellLocation, setSellLocation] = useState('Kahlert')
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [currentPhoto, setCurrentPhoto] = useState<File | null>(null)
+  const [paymentType, setPaymentType] = useState("Venmo")
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -28,6 +30,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
         const updatedPhotos = [...photos, ...filesArray];
         setPhotos(updatedPhotos);
         setCurrentPhoto(updatedPhotos[updatedPhotos.length - 1])
+        setCurrentIndex(updatedPhotos.length - 1)
       } else {
         alert('You can only upload up to 5 photos.');
       }
@@ -104,6 +107,9 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
         setPrice(0)
         setProductDescription("")
         setSellLocation('Kahlert')
+        setCurrentIndex(0)
+        setCurrentPhoto(null)
+        setPaymentType("Venmo")
       } catch (error) {
         console.error('Error creating product:', error);
         alert('Failed to create product. Please try again.');
@@ -140,7 +146,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
       </div>
     </div>
     ) : Create ? (
-      <div>
+      <div className="mx-4">
         <div className="flex flex-row justify-center">
           <h2 className="font-bold text-4xl mt-4 underline underline-offset-8">Create Product</h2>
         </div>
@@ -206,19 +212,19 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
             </div>
             <div className="flex flex-col ml-8 basis-1/3">
               <form onSubmit={(e) => {e.preventDefault(); createProduct();}}>
-                <h1 className="text-4xl font-bold">
+                <h1 className="text-xl font-bold">
                   <label htmlFor="Name">Product Name: </label>
                   <input id="Name" name="Name" type="text" placeholder="Product Name" className="pl-2 rounded-md" value={productName} onChange={(e) => setProductName(e.target.value)}></input>
                 </h1>
-                <h2 className="text-2xl mt-4">
-                  <label htmlFor="Price">Product Price: </label>
-                  <input id="Price" name="Price" type="number" placeholder="Product Price" className="pl-2 rounded-md" value={price} onChange={(e) => setPrice(parseFloat(e.target.value))}></input>
+                <h2 className="text-lg mt-4">
+                  <label htmlFor="Price" className="mr-4">Product Price: </label>
+                  <input id="Price" name="Price" type="number" className="w-16 rounded-md text-right" value={price} onChange={(e) => setPrice(parseFloat(e.target.value))}></input>
                 </h2>
-                <span className="text-md mt-4">
+                <div className="text-md mt-4">
                   <label htmlFor="Description">Product Description: </label>
                   <input id="Description" name="Description" type="text" placeholder="Product Description" className="pl-2 rounded-md" value={productDescription} onChange={(e) => setProductDescription(e.target.value)}></input>
-                </span>
-                <span className="text-md mt-4">
+                </div>
+                <div className="text-md mt-4">
                   <label htmlFor="Password">Sell Location: </label>
                   <select
                     value={sellLocation}
@@ -231,8 +237,8 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
                     <option>Guest House</option>
                     <option>Lassonde</option>
                   </select>
-                </span>
-                <span className="text-md mt-4">
+                </div>
+                <div className="text-md mt-4">
                   <label htmlFor="Password">Category: </label>
                   <select
                     value={category}
@@ -246,8 +252,23 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
                     <option>Apartment/Living</option>
                     <option>Art</option>
                   </select>
-                </span>
-                <div>
+                </div>
+                <div className="text-md mt-4">
+                  <label htmlFor="Password">Payment Type: </label>
+                  <select
+                    value={paymentType}
+                    onChange={(e) => setPaymentType(e.target.value)}
+                    className="rounded-md px-2"
+                    >
+                    <option>Venmo</option>
+                    <option>Paypal</option>
+                    <option>Cash-App</option>
+                    <option>Apple pay</option>
+                    <option>Cash</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div className="mt-4">
                   <input
                   type="file"
                   multiple
@@ -259,18 +280,17 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
                     <p className="text-red-500 mt-2">Maximum of 5 photos uploaded.</p>
                   )}
                 </div>
+                <div className="mt-10 flex justify-center">
+                  <button className="bg-[#BE0000] text-white mb-28 px-16 p-2 rounded-md hover:bg-[#8c3030]">Create Product</button>
+                </div>
               </form>
             </div>
           </div>
         </div>
-
-          <div className="absolute bottom-4 right-4">
-            <button className="bg-[#BE0000]  text-white mb-28 px-4 p-2 rounded-md hover:bg-[#8c3030]">Create Product</button>
-          </div>
       </div>
-    ) : Delete ? (
-      <div>
-        
+    ) : myProducts ? (
+      <div className="mx-4">
+        <ProductsPage productType="mine"/>
       </div>
     ) : (
       <p>Loading...</p>

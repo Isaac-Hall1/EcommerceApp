@@ -15,30 +15,41 @@ type product = {
   photos: { 
     id: number; 
     imgData: string; 
-    productId: number; }[]; 
-    Category: string; 
-  }
+    productId: number; 
+  }[]; 
+  Category: string;  
+}
 
-export default function ProductsPage() {
+interface props {
+  productType: string,
+}
+
+export default function ProductsPage({productType}: props) {
   const [sortOption, setSortOption] = useState('Newest');
   const [productsWithPhotos, setProductsWithPhotos] = useState<product[]>([])
+  const [personalPorduct, setPersonalProduct] = useState<boolean>(false)
 
   const router = useRouter();
 
 
-  const {data: allProducts, isLoading} = trpc.products.productList.useQuery()
+  const { data: products, isLoading } = 
+  productType === 'mine'
+    ? trpc.products.productByUser.useQuery() // Use a specific query for this product type
+    : trpc.products.productList.useQuery();   
 
   useEffect(() => {
-    if(!isLoading && allProducts){
+    if(productType === 'mine')
+      setPersonalProduct(true)
+    if(!isLoading && products){
       const filteredProducts: product[] = []
-      allProducts.forEach((product) =>{
+      products.forEach((product) =>{
         if(product.photos.length !== 0) {
           filteredProducts.push(product)
         }
       })
       setProductsWithPhotos(filteredProducts)
     }
-  }, [isLoading, allProducts])
+  }, [isLoading, products])
 
   return (
     <main>
@@ -71,7 +82,7 @@ export default function ProductsPage() {
                 <div className="min-w-fit max-h-20 hover:cursor-pointer" onClick={() => {
                   router.push(`/Products/${product.id}`)
                 }}>
-                  <ProductCard name={product.name} price={product.price} photo={product.photos[0].imgData} username={product.userName} key={product.id}/>
+                  <ProductCard id={product.id} name={product.name} price={product.price} photo={product.photos[0].imgData} username={product.userName} personal={personalPorduct} key={product.id}/>
                 </div>
                 </>
                 ))}

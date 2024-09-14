@@ -1,14 +1,21 @@
+import { trpc } from "@/utils/trpc"
 
 type prop = {
+  id: number,
   name: string,
   price: number,
   photo: string, 
-  username: string
+  username: string,
+  personal: boolean
 }
 
-export default function ProductCard({name, price, photo, username}: prop) {
-  // TODO: A product card should be div that takes up like 80-90% of the top of the card thats the image, under the image will be 
-  // the name and price, when clicked the product will bring you to the product details window
+export default function ProductCard({id, name, price, photo, username, personal}: prop) {
+  const delProd = trpc.products.deleteProductById.useMutation()
+  const handleClick = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
+    event.stopPropagation()
+    delProd.mutate(id)
+    window.location.reload()
+  }
 
   return (
     <div className="flex flex-col mt-4">
@@ -20,6 +27,9 @@ export default function ProductCard({name, price, photo, username}: prop) {
         <div className="flex flex-row justify-between">
           <span className="">Price: ${price}</span>
           <span className="flex justify-end">{username}</span>
+        </div>
+        <div>
+          <button className="bg-[#BE0000] px-8 py-2 rounded-md text-white hover:bg-white hover:shadow-md shadow-gray-600 hover:text-black" onClick={(e) => handleClick(e)}>Delete</button>
         </div>
       </div>
     </div>
