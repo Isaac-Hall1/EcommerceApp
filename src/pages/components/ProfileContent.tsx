@@ -27,6 +27,7 @@ export default function ProfileContent({Settings, Create, Delete} : props) {
       if (photos.length + filesArray.length <= 5) {
         const updatedPhotos = [...photos, ...filesArray];
         setPhotos(updatedPhotos);
+        setCurrentPhoto(updatedPhotos[updatedPhotos.length - 1])
       } else {
         alert('You can only upload up to 5 photos.');
       }
