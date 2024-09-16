@@ -74,7 +74,8 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
             sellLocation: sellLocation,
             category: category,
             description: productDescription,
-            photos: photoLen
+            photos: photoLen,
+            paymentType: paymentType,
           },
           {
             onSuccess: async (data) => {
@@ -151,7 +152,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
           <h2 className="font-bold text-4xl mt-4 underline underline-offset-8">Create Product</h2>
         </div>
         <div className="flex flex-col">
-          <div className="flex flex-row mt-16">
+          <div className="flex flex-col xl:flex-row mt-16">
             <div className="basis-2/3 flex flex-row">
               <div className="basis-[10%] flex flex-col">
                 {photos.map((photo, index) => (
@@ -210,7 +211,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col ml-8 basis-1/3">
+            <div className="flex flex-col ml-8 mt-10 xl:mt-0 items-center basis-1/3">
               <form onSubmit={(e) => {e.preventDefault(); createProduct();}}>
                 <h1 className="text-xl font-bold">
                   <label htmlFor="Name">Product Name: </label>

@@ -28,7 +28,7 @@ export default function ProductDetails() {
     <main className="bg-gray-200 text-black">
       <div className="max-w-screen-xl min-h-screen mx-auto">
         <div className="flex flex-col">
-          <div className="flex flex-row mt-16">
+          <div className="flex flex-col xl:flex-row mt-16">
             <div className="basis-2/3 flex flex-row">
               <div className="basis-[10%] flex flex-col">
                 {product?.photos.map((photo, index) => (
@@ -83,11 +83,12 @@ export default function ProductDetails() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col ml-8 basis-1/3">
+            <div className="flex flex-col my-10 xl:my-0 items-center ml-8 basis-1/3">
               <h1 className="text-4xl font-bold">{product?.name}</h1>
               <h2 className="text-2xl mt-4">Price: ${product?.price}</h2>
               <span className="text-md mt-4">{product?.description}</span>
               <span className="text-md mt-4">Wants to sell at: {product?.sellLocation}</span>
+              <span className="text-md mt-4">Payment Type: {product?.paymentType}</span>
               <button className="text-white mt-40 px-36 py-3 bg-[#BE0000] rounded-lg shadow-md shadow-gray-500 hover:shadow-gray-700 hover:bg-white hover:text-black duration-75">Contact {product?.userName}</button>
               <button className="text-white mt-10 px-36 py-3 bg-[#BE0000] rounded-lg shadow-md shadow-gray-500 hover:shadow-gray-700 hover:bg-white hover:text-black duration-75">Favorite</button>
             </div>

@@ -64,10 +64,11 @@ export const productRouter = router({
   .input(z.object({name: z.string(), description: z.string().optional(),
      price: z.number(), orders: z.array(z.number()).optional(),
       sellLocation: z.string(), category: z.string(), photos: z.number(),
+      paymentType: z.string()
    }))
    .mutation(async ({input, ctx}) => {
     const { username } = ctx.session.user
-    const { name, description, price, orders, sellLocation, category, photos } = input;
+    const { name, description, price, orders, sellLocation, category, photos, paymentType } = input;
     const urlArr: string[] = []
     const imgLink: string[] = []
     for(let i = 0; i < photos; i++){
@@ -89,6 +90,7 @@ export const productRouter = router({
         price: price,
         sellLocation: sellLocation,
         Category: category,
+        paymentType: paymentType,
         user : {
           connect: {username: username}
         },
