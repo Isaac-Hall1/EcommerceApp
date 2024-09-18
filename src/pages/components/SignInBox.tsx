@@ -26,11 +26,10 @@ export default function SignIn({setSignInOpen}: prop) {
         password: password,
       },
     {
-      onSuccess : async (user) => {
+      onSuccess : async () => {
         // Create the session
-        const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        const session = await encrypt({ user, expires });
-        document.cookie = 'auth-token=' + session + '; path=/'
+        await login(email, password)
+        window.location.reload();
       }
     })
   } catch (error) {
@@ -46,7 +45,6 @@ export default function SignIn({setSignInOpen}: prop) {
     } else {
       await signUp(username, password, email)
     }
-    window.location.reload();
   }
 
   return (

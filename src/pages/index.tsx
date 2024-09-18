@@ -1,7 +1,43 @@
+import { useEffect, useState } from "react";
 import Card from "./components/CategoryCard"
 
 
 export default function IndexPage() {
+  const [backgroundImage, setBackgroundImage] = useState<string|null>(null);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      const cachedImage = localStorage.getItem('cachedImage');
+
+      if (cachedImage) {
+        // Use the cached image
+        setBackgroundImage(cachedImage);
+      } else {
+        // Fetch the image, convert to Base64, and store in localStorage
+        try {
+          const response = await fetch('https://utemarketbucket.s3.amazonaws.com/Uni_of_Utah_-_banner.jpg');
+          const blob = await response.blob();
+          const reader = new FileReader();
+
+          reader.onloadend = () => {
+            const base64Data = reader.result;
+            if (typeof base64Data === 'string') {
+              // Store the Base64 string in localStorage
+              localStorage.setItem('cachedImage', base64Data);
+              setBackgroundImage(base64Data);
+            }
+          };
+
+          reader.readAsDataURL(blob);
+        } catch (error) {
+          console.error('Failed to load image:', error);
+        }
+      }
+    };
+
+    loadImage();
+  }, []);
+
   return (
     <main className='bg-cover h-screen' style={{backgroundImage: `url('https://utemarketbucket.s3.amazonaws.com/Uni_of_Utah_-_banner.jpg')`}}>
       <div className="min-h-screen max-w-screen-xl mx-auto text-white flex flex-col">

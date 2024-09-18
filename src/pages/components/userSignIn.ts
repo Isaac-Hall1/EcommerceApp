@@ -15,6 +15,7 @@ export async function login(email: string, password: string) {
 
   // Save the session in a cookie
   document.cookie = 'auth-token=' + session + '; path=/'
+  window.location.reload();
 }
 
 export async function logout() {
