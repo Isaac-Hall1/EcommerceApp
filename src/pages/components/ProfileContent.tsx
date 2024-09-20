@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import utahBanner from '../../assets/utahBanner.jpg'
 import { trpc } from "@/utils/trpc";
 import { logout } from "./userSignIn";
@@ -8,6 +8,11 @@ type props = {
   Settings: boolean,
   Create: boolean,
   myProducts: boolean,
+}
+
+interface Tags {
+  id: number,
+  name: string,
 }
 
 export default function ProfileContent({Settings, Create, myProducts} : props) {
@@ -22,6 +27,41 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
   const [currentIndex, setCurrentIndex] = useState<number>(0)
   const [currentPhoto, setCurrentPhoto] = useState<File | null>(null)
   const [paymentType, setPaymentType] = useState("Venmo")
+  const [tags, setTags] = useState<Tags[] | undefined>([])
+  const [selectedTags, setSelectedTags] = useState<Tags[]>([])
+  const [query, setQuery] = useState('');
+  const [filteredItems, setFilteredItems] = useState<Tags[]>([]);
+
+  const allTags = trpc.tags.tagList.useQuery()
+
+  useEffect(() => {
+    setTags(allTags.data)
+  })
+  useEffect(() => {
+    if (query.length >= 2) {
+      const filtered = tags?.filter(tag =>
+        tag.name.toLowerCase().includes(query.toLowerCase())
+      );
+      if(filtered)
+        setFilteredItems(filtered);
+    } else {
+      setFilteredItems([]);
+    }
+  }, [query]);
+
+  const deleteItem = (item: Tags) => {
+    setSelectedTags((selectedTags) => selectedTags.filter(tag => tag !== item));
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
+
+  const handleSelectItem = (item: Tags) => {
+    setSelectedTags(selectedTags => [...selectedTags, item]);
+    setQuery('');
+    setFilteredItems([]);
+  };
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -62,6 +102,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
   const createProduct = async () => {
       const photoLen: number = photos.length
       try {
+        const tagId = selectedTags.map((tag) => tag.id)
         // Call the mutation to create the product
         if(photos.length === 0){
           alert('must have at least one photo')
@@ -76,6 +117,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
             description: productDescription,
             photos: photoLen,
             paymentType: paymentType,
+            Tags: tagId
           },
           {
             onSuccess: async (data) => {
@@ -111,6 +153,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
         setCurrentIndex(0)
         setCurrentPhoto(null)
         setPaymentType("Venmo")
+        setTags([])
       } catch (error) {
         console.error('Error creating product:', error);
         alert('Failed to create product. Please try again.');
@@ -230,13 +273,14 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
                   <select
                     value={sellLocation}
                     onChange={(e) => setSellLocation(e.target.value)}
-                    className="rounded-md pl-2"
+                    className="rounded-md pl-2 hover:cursor-pointer"
                     >
                     <option>Kahlert</option>
                     <option>PHC</option>
                     <option>Union</option>
                     <option>Guest House</option>
                     <option>Lassonde</option>
+                    <option>Online</option>
                   </select>
                 </div>
                 <div className="text-md mt-4">
@@ -244,14 +288,16 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="rounded-md px-2"
+                    className="rounded-md px-2 hover:cursor-pointer"
                     >
                     <option>Kitchen Appliances</option>
-                    <option>Furninture</option>
+                    <option>Furniture</option>
                     <option>Football Tickets</option>
                     <option>School Supplies</option>
-                    <option>Apartment/Living</option>
+                    <option value='Apartment-Living'>Apartment/Living</option>
                     <option>Art</option>
+                    <option>Apperal</option>
+                    <option>Other</option>
                   </select>
                 </div>
                 <div className="text-md mt-4">
@@ -259,7 +305,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
                   <select
                     value={paymentType}
                     onChange={(e) => setPaymentType(e.target.value)}
-                    className="rounded-md px-2"
+                    className="rounded-md px-2 hover:cursor-pointer"
                     >
                     <option>Venmo</option>
                     <option>Paypal</option>
@@ -269,11 +315,44 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
                     <option>Other</option>
                   </select>
                 </div>
+                <div className="text-md mt-4">
+                  <label htmlFor="Tags">Tags: </label>
+                  <input
+                      id="Tags"
+                      name="Tags"
+                      type="text"
+                      value={query}
+                      onChange={handleInputChange}
+                      className="px-2 rounded-md"
+                      placeholder="Type at least 3 letters..."
+                    />
+                    {filteredItems.length > 0 && (
+                      <ul className="border border-gray-500 bg-gray-300 mt-2 rounded-md px-2 flex flex-col">
+                        {filteredItems.map(item => (
+                          <li key={item.id} onClick={() => handleSelectItem(item)} className="inline-block cursor-default">
+                            <p className="hover:cursor-pointer hover:text-lg">{item.name}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {selectedTags.length > 0 && (
+                      <div>
+                        <p>Selected items:</p>
+                        <ul className="flex flex-col">
+                          {selectedTags.map(item => (
+                            <li key={item.id} onClick={() => deleteItem(item)} className="inline-block cursor-default">
+                              <p className="hover:cursor-pointer flex justify-between hover:text-red-500">{item.name}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                </div>
                 <div className="mt-4">
                   <input
                   type="file"
                   multiple
-                  accept="image/*"
+                  accept="image/jpeg, image/png"
                   onChange={handlePhotoUpload}
                   disabled={photos.length >= 5}
                   />
@@ -290,7 +369,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
         </div>
       </div>
     ) : myProducts ? (
-      <div className="mx-4">
+      <div className="mx-4 mb-8">
         <ProductsPage productType="mine"/>
       </div>
     ) : (

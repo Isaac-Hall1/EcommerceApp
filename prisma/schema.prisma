@@ -37,6 +37,13 @@ model Product {
   paymentType String
   Category String @default("Venmo")
   CartItem CartItem[]
+  Tags Tag[] @relation("ProductTags")
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String @unique
+  products  Product[] @relation("ProductTags")
 }
 
 model Photo {

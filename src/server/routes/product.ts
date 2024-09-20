@@ -3,6 +3,25 @@ import { prisma } from "../db"
 import {z} from 'zod'
 import {s3} from '../../utils/awsConfig'
 import { v4 as uuidv4} from 'uuid';
+import Fuse from "fuse.js";
+
+interface product { 
+  id: number; 
+  createdAt: string; 
+  updatedAt: string; 
+  name: string; 
+  description: string | null; 
+  price: number; 
+  sellLocation: string; 
+  userName: string;
+  tags: string[]
+  photos: { 
+    id: number; 
+    imgData: string; 
+    productId: number; 
+  }[]; 
+  Category: string;  
+}
 
 export const productRouter = router({
   productList: publicProcedure
@@ -10,7 +29,8 @@ export const productRouter = router({
     try{
       const products = await prisma.product.findMany({
         include: {
-          photos: true
+          photos: true,
+
         }
       });
 
@@ -34,41 +54,126 @@ export const productRouter = router({
     return product
   }),
   productByUser: protectedProcedure
-  .query(async ({ctx}) => {
+  .input(z.string())
+  .query(async ({input, ctx}) => {
+    let product;
     const { username } = ctx.session.user;
-    const products = await prisma.product.findMany({
-      where: {
-        userName: username
-      },
-      include: {
-        photos: true,  // Include the photos relation in the returned product
-      },
-    })
-    return products
+    if(input === 'newest'){
+      product = await prisma.product.findMany({
+        where: {
+          userName: username
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    } else if(input === 'low-to-high') {
+      product = await prisma.product.findMany({
+        where: {
+          userName: username
+        },
+        orderBy: {
+          price: 'asc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    } else if(input === 'high-to-low') {
+      product = await prisma.product.findMany({
+        where: {
+          userName: username
+        },
+        orderBy: {
+          price: 'desc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    } else if(input === 'oldest') {
+      product = await prisma.product.findMany({
+        where: {
+          userName: username
+        },
+        orderBy: {
+          createdAt: 'asc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    }
+    return product
   }),
   productsByCategory: publicProcedure
-  .input(z.string())
-  .query(async (opts) => {
-    const { input } = opts;
-    const product = await prisma.product.findMany({
-      where: {
-        Category: input
-      },
-      include: {
-        photos: true,  // Include the photos relation in the returned product
-      },
-    })
+  .input(z.object({category: z.string(), order: z.string()}))
+  .query(async ({input}) => {
+    const { category, order } = input;
+    let product;
+    if(order === 'newest'){
+      product = await prisma.product.findMany({
+        where: {
+          Category: category
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    } else if(order === 'low-to-high') {
+      product = await prisma.product.findMany({
+        where: {
+          Category: category
+        },
+        orderBy: {
+          price: 'asc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    } else if(order === 'high-to-low') {
+      product = await prisma.product.findMany({
+        where: {
+          Category: category
+        },
+        orderBy: {
+          price: 'desc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    } else if(order === 'oldest') {
+      product = await prisma.product.findMany({
+        where: {
+          Category: category
+        },
+        orderBy: {
+          createdAt: 'asc'
+        },
+        include: {
+          photos: true,  // Include the photos relation in the returned product
+        },
+      })
+    }
     return product
   }),
   createProduct: protectedProcedure
   .input(z.object({name: z.string(), description: z.string().optional(),
      price: z.number(), orders: z.array(z.number()).optional(),
       sellLocation: z.string(), category: z.string(), photos: z.number(),
-      paymentType: z.string()
+      paymentType: z.string(), Tags: z.array(z.number())
    }))
    .mutation(async ({input, ctx}) => {
     const { username } = ctx.session.user
-    const { name, description, price, orders, sellLocation, category, photos, paymentType } = input;
+    const { name, description, price, orders, sellLocation, category, photos, paymentType, Tags } = input;
     const urlArr: string[] = []
     const imgLink: string[] = []
     for(let i = 0; i < photos; i++){
@@ -103,6 +208,11 @@ export const productRouter = router({
             imgData: url,
           })),
         },
+        Tags: {
+          connect: Tags?.map(id => ({
+            id: id
+          })) || []
+        }
       },
       include: {
         photos: true,  // Include the photos relation in the returned product
@@ -148,7 +258,31 @@ export const productRouter = router({
       })
       return product
      }),
-   deleteProductById: publicProcedure
+  productBySearch: publicProcedure
+    .input(z.string())
+    .query(async ({input}) => {
+      const search = input
+      const allProducts = await prisma.product.findMany({
+        include: {
+          photos: true,
+        },
+      });
+      // Step 2: Set up Fuse.js
+      const fuseOptions = {
+        keys: [
+          { name: 'name', weight: 0.5 },
+          { name: 'description', weight: 0.3 },
+          { name: 'Category', weight: 0.2 },
+          { name: 'tags.name', weight: 0.2 },
+        ],
+        threshold: 0.7, // Adjust this for fuzziness
+      };
+      const fuse = new Fuse(allProducts, fuseOptions);
+      const fuzzyResults = fuse.search(search);
+      const matchedProducts = fuzzyResults.map(result => result.item);
+      return matchedProducts;
+    }),
+  deleteProductById: publicProcedure
    .input(z.number())
    .mutation(async (opts) => {
     const {input} = opts;
@@ -162,6 +296,7 @@ export const productRouter = router({
     })
     return product
    }),
+
    deleteAllProducts: publicProcedure
    .mutation(async () => {
       const products = await prisma.product.findMany()

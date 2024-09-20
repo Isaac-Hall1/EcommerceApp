@@ -33,12 +33,14 @@ const Navbar = () => {
                   </div>
                   <div className="w-64 z-50">
                     <div className="flex flex-col pl-4">
-                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Kitchen Appliances</a>
-                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Furniture</a>
-                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Football Tickets</a>
-                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">School Supplies</a>
-                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="#">Apartment/Living</a>
-                      <a className="py-2 hover:text-lg hover:font-bold duration-100" href="#">Art</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/Kitchen Appliance">Kitchen Appliances</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/Furniture">Furniture</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/Football Tickets">Football Tickets</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/School Supplies">School Supplies</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/Apartment-Living">Apartment/Living</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/Art">Art</a>
+                      <a className="pt-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/Apperal">Apperal</a>
+                      <a className="py-2 hover:text-lg hover:font-bold duration-100" href="/Products/Category/Other">Other</a>
                     </div>
                   </div>
                 </div>

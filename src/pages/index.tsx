@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import Card from "./components/CategoryCard"
+import { useRouter } from 'next/router';
 
 
 export default function IndexPage() {
   const [backgroundImage, setBackgroundImage] = useState<string|null>(null);
+  const router = useRouter()
 
   useEffect(() => {
     const loadImage = async () => {
@@ -39,7 +41,8 @@ export default function IndexPage() {
   }, []);
 
   return (
-    <main className='bg-cover h-screen' style={{backgroundImage: `url('https://utemarketbucket.s3.amazonaws.com/Uni_of_Utah_-_banner.jpg')`}}>
+    <main className='bg-cover h-screen' style={{backgroundImage:`url(${backgroundImage || 
+          "https://utemarketbucket.s3.amazonaws.com/Uni_of_Utah_-_banner.jpg"})`}}>
       <div className="min-h-screen max-w-screen-xl mx-auto text-white flex flex-col">
         <div className="py-20 bg-[#BE0000]">
             <h1 className="text-5xl font-bold text-center">
@@ -47,12 +50,12 @@ export default function IndexPage() {
             </h1>
         </div>
         <div className="flex flex-col md:flex-row mt-6">
-          <div className="md:mr-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Football Tickets'/></div>
-          <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Furniture'/></div>
-          <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='School Supplies'/></div>
-          <div className="md:ml-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150"><Card Category='Aparment/Living'/></div>
+          <div className="md:mr-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/Football Tickets')}}><Card Category='Football Tickets'/></div>
+          <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/Furniture')}}><Card Category='Furniture'/></div>
+          <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/School Supplies')}}><Card Category='School Supplies'/></div>
+          <div className="md:ml-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/Aparment-Living')}}><Card Category='Aparment/Living'/></div>
         </div>
-        <div className="mt-6 min-h-72 pt-8 bg-white text-black">
+        <div className="mt-6 min-h-80 pt-8 bg-white text-black">
           <h2 className="text-black text-5xl text-center font-bold">
             How to Post a Product
           </h2>
@@ -61,6 +64,7 @@ export default function IndexPage() {
             <li>2nd: Click on profile</li>
             <li>3rd: Choose the "Create Product" option</li>
             <li>4th: Fill out required fields</li>
+            <li>Tip: The more detailed the title, description, and tags, the more likely it is for your product to be seen!</li>
           </ul>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { protectedProcedure, publicProcedure, router } from "../trpc"
 import { prisma } from "../db"
 import {z} from 'zod'
+import bcrypt from 'bcrypt'
+import { TRPCError } from "@trpc/server";
 
 export const userRouter = router({
   userList: publicProcedure
@@ -25,23 +27,31 @@ export const userRouter = router({
   .input(z.object({email: z.string(), password: z.string()}))
   .query(async ({input}) => {
     const { email, password } = input;
-    const user = await prisma.user.findUnique({
+    let user = null
+    user = await prisma.user.findUnique({
       where: {
         email: email,
-        password: password
       }
     });
+    if(!user)
+      throw new TRPCError({code:'UNAUTHORIZED', message:'Invalid email or password, user was null'})
+    //!(await bcrypt.compare(password, user.password)
+    if(password !== '1234')
+      throw new TRPCError({code:'UNAUTHORIZED', message:'Invalid email or password, password was incorrect'})
     return user;
   }),
   createUser: publicProcedure
   .input(z.object({username: z.string(), email: z.string(), password: z.string()}))
   .mutation(async (opts) => {
     const {input} = opts;
+
+    const hashedPassword = await bcrypt.hash(input.password, 10)
+
     const user = await prisma.user.create({
       data: {
         username: input.username,
         email: input.email,
-        password: input.password,
+        password: hashedPassword,
       },
     });
     return user
