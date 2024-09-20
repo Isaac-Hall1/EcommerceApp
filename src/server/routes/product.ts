@@ -30,7 +30,7 @@ export const productRouter = router({
       const products = await prisma.product.findMany({
         include: {
           photos: true,
-
+          Tags: true
         }
       });
 
@@ -258,30 +258,58 @@ export const productRouter = router({
       })
       return product
      }),
-  productBySearch: publicProcedure
-    .input(z.string())
-    .query(async ({input}) => {
-      const search = input
-      const allProducts = await prisma.product.findMany({
-        include: {
-          photos: true,
-        },
-      });
-      // Step 2: Set up Fuse.js
-      const fuseOptions = {
-        keys: [
-          { name: 'name', weight: 0.5 },
-          { name: 'description', weight: 0.3 },
-          { name: 'Category', weight: 0.2 },
-          { name: 'tags.name', weight: 0.2 },
-        ],
-        threshold: 0.7, // Adjust this for fuzziness
-      };
-      const fuse = new Fuse(allProducts, fuseOptions);
-      const fuzzyResults = fuse.search(search);
-      const matchedProducts = fuzzyResults.map(result => result.item);
-      return matchedProducts;
-    }),
+     productBySearch: publicProcedure
+  .input(z.object({ search: z.string(), order: z.string() }))
+  .query(async ({ input }) => {
+    const { search, order } = input;
+
+    // Fetch all products from the database
+    let product = await prisma.product.findMany({
+      include: { photos: true }
+    });
+
+    // Split the search query into individual words
+    const searchWords = search.trim().split(/\s+/).filter(Boolean);
+
+    // Step 2: Set up Fuse.js
+    const fuseOptions = {
+      keys: [
+        { name: 'name', weight: 0.3 },
+        { name: 'description', weight: 0.4 },
+        { name: 'Category', weight: 0.2 },
+        { name: 'tags.name', weight: 1 },
+      ],
+      threshold: 0.4, // Adjust this for fuzziness
+    };
+    const fuse = new Fuse(product, fuseOptions);
+
+    // Perform the search using Fuse.js
+    const fuzzyResults = fuse.search(search);
+
+    // Return only the matched products
+    let matchedProducts = fuzzyResults.map(result => result.item);
+
+    // Filter matched products to ensure at least one search word is present
+
+    // Sort the matched products based on the order
+    const sortedProducts = matchedProducts.sort((a, b) => {
+      switch (order) {
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'low-to-high':
+          return a.price - b.price;
+        case 'high-to-low':
+          return b.price - a.price;
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        default:
+          return 0; // No sorting
+      }
+    });
+
+    return sortedProducts; // Return sorted matched products
+  }),
+
   deleteProductById: publicProcedure
    .input(z.number())
    .mutation(async (opts) => {

@@ -370,7 +370,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
       </div>
     ) : myProducts ? (
       <div className="mx-4 mb-8">
-        <ProductsPage productType="mine"/>
+        <ProductsPage productType="mine" searchQuery="N/A"/>
       </div>
     ) : (
       <p>Loading...</p>

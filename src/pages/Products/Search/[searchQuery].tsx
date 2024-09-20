@@ -3,9 +3,8 @@ import { useRouter } from "next/router"
 
 export default function CategoryProducts() {
   const router = useRouter();
-  const {category} = router.query;
-
+  const {searchQuery} = router.query;
   return (
-    <ProductsPage productType={String(category)} searchQuery="N/A"/>
+    <ProductsPage productType='N/A' searchQuery={String(searchQuery)}/>
   );
 }

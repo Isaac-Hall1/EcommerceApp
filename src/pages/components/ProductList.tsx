@@ -20,35 +20,64 @@ type product = {
   Category: string;  
 }
 
-interface props {
-  productType: string,
+interface products { 
+  id: number; 
+  createdAt: string; 
+  updatedAt: string; 
+  name: string; 
+  description: string | null; 
+  price: number; 
+  sellLocation: string; 
+  userName: string;
+  photos: { 
+    id: number; 
+    imgData: string; 
+    productId: number; 
+  }[]; 
+  Category: string;  
 }
 
-export default function ProductsPage({productType}: props) {
+interface props {
+  productType: string,
+  searchQuery: string
+}
+
+export default function ProductsPage({productType, searchQuery}: props) {
   const [sortOption, setSortOption] = useState('newest');
   const [productsWithPhotos, setProductsWithPhotos] = useState<product[]>([])
   const [personalPorduct, setPersonalProduct] = useState<boolean>(false)
 
   const router = useRouter();
 
-  const { data: products, isLoading, refetch } = 
-  productType === 'mine'
-    ? trpc.products.productByUser.useQuery(sortOption) // Use a specific query for this product type
-    : trpc.products.productsByCategory.useQuery({category: productType, order: sortOption});   
+  let products = trpc.products.productByUser.useQuery(sortOption)
+  let isLoading = products.isLoading
+  let refetch = products.refetch
+  if(productType !== 'mine' && searchQuery === 'N/A'){
+    products = trpc.products.productsByCategory.useQuery({category: productType, order: sortOption})
+    isLoading = products.isLoading
+    refetch = products.refetch
+  } else if (searchQuery !== 'N/A'){
+    products = trpc.products.productBySearch.useQuery({search: searchQuery, order: sortOption})
+    isLoading = products.isLoading
+    refetch = products.refetch
+    console.log('hi')
+  }
+
+  let productList = products.data
 
   useEffect(() => {
     if(productType === 'mine')
       setPersonalProduct(true)
-    if(!isLoading && products){
+    if(!isLoading && productList){
       const filteredProducts: product[] = []
-      products.forEach((product) =>{
+      productList?.forEach((product) =>{
         if(product.photos.length !== 0) {
           filteredProducts.push(product)
         }
       })
       setProductsWithPhotos(filteredProducts)
     }
-  }, [isLoading, products])
+  }, [isLoading, productList])
 
   const refetchProducts = async () => {
     await refetch()
