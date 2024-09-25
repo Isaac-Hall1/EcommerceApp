@@ -123,7 +123,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
             onSuccess: async (data) => {
               // Use the photo URLs from the newly created product
               await Promise.all(
-                data.urls.map(async (url, index) => {
+                data.urls.map(async (url: string, index: number) => {
                   try {
                     await fetch(url, {
                       method: "PUT",
@@ -154,6 +154,7 @@ export default function ProfileContent({Settings, Create, myProducts} : props) {
         setCurrentPhoto(null)
         setPaymentType("Venmo")
         setTags([])
+        setSelectedTags([])
       } catch (error) {
         console.error('Error creating product:', error);
         alert('Failed to create product. Please try again.');

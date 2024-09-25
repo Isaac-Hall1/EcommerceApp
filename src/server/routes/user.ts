@@ -36,7 +36,7 @@ export const userRouter = router({
     if(!user)
       throw new TRPCError({code:'UNAUTHORIZED', message:'Invalid email or password, user was null'})
     //!(await bcrypt.compare(password, user.password)
-    if(password !== '1234')
+    if(!(await bcrypt.compare(password, user.password)))
       throw new TRPCError({code:'UNAUTHORIZED', message:'Invalid email or password, password was incorrect'})
     return user;
   }),

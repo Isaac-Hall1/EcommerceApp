@@ -3,9 +3,10 @@ import { prisma } from "../db"
 import {z} from 'zod'
 import {s3} from '../../utils/awsConfig'
 import { v4 as uuidv4} from 'uuid';
-import Fuse from "fuse.js";
+import { Objective } from '@objective-inc/sdk';
+import { json } from "stream/consumers";
 
-interface product { 
+type product = { 
   id: number; 
   createdAt: string; 
   updatedAt: string; 
@@ -14,13 +15,18 @@ interface product {
   price: number; 
   sellLocation: string; 
   userName: string;
-  tags: string[]
+  paymentType: string,
   photos: { 
     id: number; 
     imgData: string; 
     productId: number; 
   }[]; 
   Category: string;  
+}
+
+type searchProduct = {
+  id: string,
+  object: product,
 }
 
 export const productRouter = router({
@@ -218,6 +224,24 @@ export const productRouter = router({
         photos: true,  // Include the photos relation in the returned product
       },
     })
+    try {
+      let tempProd = product
+      const response = await fetch('https://api.objective.inc/v1/objects', {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          authorization: `Bearer ${process.env.AOI_API_KEY}`, // Replace with actual API key
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(tempProd)
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to add product: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
     return {'product': product, 'urls': urlArr}
    }),
    updateProduct: publicProcedure
@@ -258,57 +282,73 @@ export const productRouter = router({
       })
       return product
      }),
-     productBySearch: publicProcedure
-  .input(z.object({ search: z.string(), order: z.string() }))
-  .query(async ({ input }) => {
-    const { search, order } = input;
+  productBySearch: publicProcedure
+    .input(z.object({ search: z.string(), order: z.string() }))
+    .query(async ({ input }) => {
+      const { search, order } = input;
 
-    // Fetch all products from the database
-    let product = await prisma.product.findMany({
-      include: { photos: true }
-    });
-
-    // Split the search query into individual words
-    const searchWords = search.trim().split(/\s+/).filter(Boolean);
-
-    // Step 2: Set up Fuse.js
-    const fuseOptions = {
-      keys: [
-        { name: 'name', weight: 0.3 },
-        { name: 'description', weight: 0.4 },
-        { name: 'Category', weight: 0.2 },
-        { name: 'tags.name', weight: 1 },
-      ],
-      threshold: 0.4, // Adjust this for fuzziness
-    };
-    const fuse = new Fuse(product, fuseOptions);
-
-    // Perform the search using Fuse.js
-    const fuzzyResults = fuse.search(search);
-
-    // Return only the matched products
-    let matchedProducts = fuzzyResults.map(result => result.item);
-
-    // Filter matched products to ensure at least one search word is present
-
-    // Sort the matched products based on the order
-    const sortedProducts = matchedProducts.sort((a, b) => {
-      switch (order) {
-        case 'newest':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case 'low-to-high':
-          return a.price - b.price;
-        case 'high-to-low':
-          return b.price - a.price;
-        case 'oldest':
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        default:
-          return 0; // No sorting
+      const client = new Objective({ apiKey: process.env.AOI_API_KEY });
+      const searchResponse = await client.indexes.search(
+        "idx_QA6DU7Z9kkIL",
+        {
+          query: search,
+          object_fields: "id,name,description,Category,photos,userName,price,sellLocation,paymentType",
+          relevance_cutoff: 'great',
+          limit: 10
+        }
+      );
+      let retVal: product[] = []
+      searchResponse.results.map((res) => {
+        let pushVal = res.object as product
+        retVal.push(pushVal)
+      })
+      return {products: {data: retVal}, searchResponse}
+  }),
+  addProductToObjectStore: publicProcedure
+  .mutation(async () => {
+  let retVal;
+  
+  try {
+    // Await the product retrieval from Prisma
+    const products = await prisma.product.findMany({
+      include: {
+        photos: true,
+        Tags: true
       }
     });
+    
+    if (products.length > 0) {
+      // Use Promise.all to handle all fetch requests concurrently
+      const results = await Promise.all(
+        products.map(async (product) => {
+          const response = await fetch('https://api.objective.inc/v1/objects', {
+            method: 'PUT',
+            headers: {
+              accept: 'application/json',
+              authorization: `Bearer ${process.env.AOI_API_KEY}`, // Replace with actual API key
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify(product)
+          });
 
-    return sortedProducts; // Return sorted matched products
-  }),
+          if (!response.ok) {
+            throw new Error(`Failed to add product: ${response.statusText}`);
+          }
+
+          return await response.json(); // Return the response JSON
+        })
+      );
+
+      retVal = results; // Assign all fetch responses to retVal
+    }
+
+    return retVal; // Return the results
+
+  } catch (error) {
+    console.error('Error adding products:', error);
+    throw new Error('Could not add products');
+  }
+}),
 
   deleteProductById: publicProcedure
    .input(z.number())
@@ -322,6 +362,49 @@ export const productRouter = router({
         photos: true,  // Include the photos relation in the returned product
       },
     })
+    product.photos.map(async (photo) => {
+      let keyVal = photo.imgData.split('/').slice(3).join('/'); // Join back into a string
+      if (keyVal && process.env.AWS_BUCKET_NAME) {
+        const params = {
+          Bucket: process.env.AWS_BUCKET_NAME, // Your S3 bucket name
+          Key: keyVal, // S3 object key as a string
+        };
+        try {
+          // Delete the object from S3
+          await s3.deleteObject(params).promise(); 
+        } catch (err) {
+          console.error(`Error deleting object ${keyVal}`, err);
+        }
+      }
+    })
+
+    const client = new Objective({ apiKey: process.env.AOI_API_KEY });
+    const searchResponse = await client.indexes.search(
+      "idx_QA6DU7Z9kkIL",
+      {
+        query: product.name,
+        object_fields: "id,name,description,Category,photos,userName,price,sellLocation,paymentType",
+        relevance_cutoff: 'great',
+        limit: 10
+      }
+    );
+
+   try{   
+    searchResponse.results.forEach(async (res) => {
+       let prod = res.object as product;
+       if (prod.id === product.id) {
+         const del = await fetch(`https://api.objective.inc/v1/objects/${res.id}`, {
+           method: 'DELETE',
+           headers: {
+             Authorization: `Bearer ${process.env.AOI_API_KEY}`
+           }
+         });
+         console.log(del)
+       }
+     })
+    } catch (error) {
+      console.log(error)
+    }
     return product
    }),
 

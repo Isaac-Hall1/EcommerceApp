@@ -1,8 +1,25 @@
 import { trpc } from "@/utils/trpc";
 import { useState } from "react";
 
-export default function Insperation() {
+type product = { 
+  id: number; 
+  createdAt: string; 
+  updatedAt: string; 
+  name: string; 
+  description: string | null; 
+  price: number; 
+  sellLocation: string; 
+  userName: string;
+  photos: { 
+    id: number; 
+    imgData: string; 
+    productId: number; 
+  }[]; 
+  Category: string;  
+}
 
+export default function Insperation() {
+  const prod = trpc.products.addProductToObjectStore.useMutation()
   const mutation = trpc.tags.createTag.useMutation()
 
   const [tag, setTag] = useState(''); // State to hold the single tag
@@ -12,8 +29,24 @@ export default function Insperation() {
     mutation.mutate(tag)
   };
 
+  function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  const handleButton = async () => {
+    try{
+      prod.mutateAsync()
+      console.log(':)')
+    } catch(error) {
+      console.log(error)
+    }
+  }
+
   return (
-    <main className='bg-cover h-screen' style={{backgroundImage: `url('https://scontent-lax3-1.xx.fbcdn.net/v/t39.30808-6/278458740_360154352821770_4906019428737952204_n.jpg?stp=dst-jpg_p960x960&_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=uXjLNqUtb2oQ7kNvgEBEMob&_nc_ht=scontent-lax3-1.xx&oh=00_AYCXfZqLhwgLPLJVbH5ES61RiMEvzgRVySOY99EdIMGKrA&oe=66DDD964')`}}>
+    <main className='bg-gray-200 h-screen text-black'>
+
+      <button onClick={handleButton}>But</button>
+
       <div>
         <form onSubmit={handleSubmit}>
           <label htmlFor="tagInput">Create tag: </label>

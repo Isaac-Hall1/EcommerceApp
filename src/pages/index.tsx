@@ -53,7 +53,7 @@ export default function IndexPage() {
           <div className="md:mr-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/Football Tickets')}}><Card Category='Football Tickets'/></div>
           <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/Furniture')}}><Card Category='Furniture'/></div>
           <div className="md:mx-[1.25%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/School Supplies')}}><Card Category='School Supplies'/></div>
-          <div className="md:ml-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/Aparment-Living')}}><Card Category='Aparment/Living'/></div>
+          <div className="md:ml-[2.5%] min-w-[22.5%] hover:-translate-y-2 duration-150" onClick={() => {router.push('/Products/Category/Apartment-Living')}}><Card Category='Aparment/Living'/></div>
         </div>
         <div className="mt-6 min-h-80 pt-8 bg-white text-black">
           <h2 className="text-black text-5xl text-center font-bold">
